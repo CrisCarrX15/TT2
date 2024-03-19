@@ -28,15 +28,15 @@ class QeWorker(QObject):
         for i in range(5):
             self.message_signal.emit(f"Execute process {i}")
             print(f"Execute process {i}")
-            subprocess.run('pw.x < ./C.in > ./C.out', shell=True)
+            subprocess.run('pw.x < ./test_files/C.in > ./test_files/C.out', shell=True)
             self.message_signal.emit("Execute Finish")
 
-            energy = qe_io.find_total_energy("C.out")
+            energy = qe_io.find_total_energy("./test_files/C.out")
             self.message_signal.emit(f"La energía total en la iteración {i} es: {energy}")
             print(f"La energía total en la iteración {i} es: {energy}")
 
             try:
-                qe_io.sum_ecut("C.in", 5)
+                qe_io.sum_ecut("./test_files/C.in", 5)
             except Exception as e:
                 self.message_signal.emit(f"Something is wrong: {e}")
 
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
 
         # Agregar una etiqueta con una imagen en la esquina
-        imagen_path = 'GUI.jpeg'  
+        imagen_path = './images/GUI.jpeg'  
         imagen_label = QLabel(self)
 
         # Verificar que la imagen se cargue correctamente
@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
 
     def start_process(self):
         self.message("Executing process.")
-        subprocess.run('pw.x < ./C.in > ./C.out', shell=True)
+        subprocess.run('pw.x < ./test_files/C.in > ./test_files/C.out', shell=True)
         self.message("Execute Finish")
     
     # Iteration process with thread

@@ -21,7 +21,7 @@ def find_total_energy(filename):
     total_energy = "0 Ry"
     # Find the line that contains the total energy
     for i, line in enumerate(lines):
-        if 'total energy' in line:
+        if '!    total energy' in line:
             # Find the position of = and extract the current value
             pos_equal = line.find('=')
             #line = line.replace('Ry','')
@@ -83,7 +83,7 @@ def sum_ecut(filename, number_to_add):
             new_value = actual_value + number_to_add
 
             # Update the line with the new value
-            lines[i] = f'   ecutwfc = {new_value},\n'
+            lines[i] = f'  ecutwfc = {new_value},\n'
             break  # Breaks the loop once the line has been found and modified
 
     # Save the modified file

@@ -20,7 +20,7 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(welcome_label)
 
         # Agregar una etiqueta con la imagen GUI
-        imagen_path = 'GUI.jpeg'
+        imagen_path = './images/GUI.jpeg'
         imagen_label = QLabel(self)
         pixmap = QPixmap(imagen_path)
         if not pixmap.isNull():

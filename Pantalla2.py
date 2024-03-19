@@ -10,14 +10,14 @@ class ProyectoWindow(QWidget):
         # Configurar la ventana principal
         self.setWindowTitle("Proyecto")
         self.setGeometry(100, 100, 800, 600)
-        self.setStyleSheet("background-color: #87CEEB;")
+        self.setStyleSheet("background-color: #879ec5;")
 
         # Layout principal
         layout = QVBoxLayout()
 
         # Imagen de GUI en la esquina superior derecha
         image_label = QLabel()
-        pixmap = QPixmap("GUI.jpeg")
+        pixmap = QPixmap("./images/GUI.jpeg")
         pixmap = pixmap.scaledToHeight(100)
         image_label.setPixmap(pixmap)
         layout.addWidget(image_label, alignment=Qt.AlignRight)
