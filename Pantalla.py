@@ -64,6 +64,9 @@ class WelcomeWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+        #Ajustar los parametros necesarios para la pantalla 
+        
+
 if __name__ == '__main__':
     app = QApplication([])
     window = WelcomeWindow()

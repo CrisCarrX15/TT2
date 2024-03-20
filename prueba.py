@@ -157,6 +157,34 @@ class MainWindow(QMainWindow):
             self.message("No se seleccionó ningún archivo .in.")
             return
 
+        # Recuperar los valores de los puntos K
+        k_points = []
+        for row in self.k_points_editors:
+            k_point = []
+            for editor in row:
+                text = editor.text()
+                if text.strip():
+                    try:
+                        value = int(text)
+                        k_point.append(value)
+                    except ValueError:
+                        pass  # Ignorar valores no enteros
+            if len(k_point) == 3:
+                k_points.append(k_point)
+
+        # Recuperar el valor de la energía de corte
+        energy_text = self.energy_editor.text()
+        try:
+            energy = float(energy_text)
+
+            # Modificar el archivo con los nuevos valores
+            qe_io.modify_k_points(file_path, k_points)
+            qe_io.modify_ecut(file_path, energy)
+
+            self.message("Archivo modificado y guardado.")
+        except Exception as e:
+            print("Error al modificar el archivo:", e)
+        
         # Leer el contenido del archivo .in y mostrarlo en una ventana de texto
         with open(file_path, 'r') as file:
             content = file.read()

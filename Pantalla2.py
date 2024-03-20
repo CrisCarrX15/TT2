@@ -53,7 +53,12 @@ class ProyectoWindow(QWidget):
         proyecto_menu.addAction(abrir_action)
         proyecto_menu.addAction(borrar_action)
 
+
         return menu_bar
+    
+        #Mejorar el navbar, Mejorar pantallas
+        #Ajustar pantallas
+        #Acomodar clases
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
