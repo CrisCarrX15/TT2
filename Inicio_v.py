@@ -2,13 +2,23 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, Q
 from PySide2.QtGui import QPixmap, QColor
 from PySide2.QtCore import Qt
 
+class AppStyle:
+    @staticmethod
+    def apply(window):
+        # Establecer el tamaño de la ventana
+        window.setGeometry(100, 100, 1200, 800)  
+        window.setWindowTitle('')
+        
+        # Establecer el color de fondo
+        color_fondo = QColor(135, 158, 197)
+        window.setStyleSheet(f'background-color: {color_fondo.name()};')
+
 class WelcomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Configurar la ventana de bienvenida
-        self.setGeometry(200, 200, 600, 400)
-        self.setWindowTitle('')
+        # Aplicar el estilo
+        AppStyle.apply(self)
 
         # Crear un layout vertical
         layout = QVBoxLayout()
@@ -20,7 +30,7 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(welcome_label)
 
         # Agregar una etiqueta con la imagen GUI
-        imagen_path = './images/GUI.jpeg'
+        imagen_path = './images/GUI.jpeg'  
         imagen_label = QLabel(self)
         pixmap = QPixmap(imagen_path)
         if not pixmap.isNull():
@@ -55,20 +65,14 @@ class WelcomeWindow(QMainWindow):
 
         layout.addWidget(group_box)
 
-        # Establecer el color de fondo
-        color_fondo = QColor(135, 158, 197)
-        self.setStyleSheet(f'background-color: {color_fondo.name()};')
-
         # Crear un widget central y establecer el layout
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
-
-        #Ajustar los parametros necesarios para la pantalla 
-        
 
 if __name__ == '__main__':
     app = QApplication([])
     window = WelcomeWindow()
     window.show()
     app.exec_()
+
