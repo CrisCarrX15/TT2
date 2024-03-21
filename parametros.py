@@ -4,12 +4,21 @@ from PySide2.QtCore import Qt
 
 import input_values
 
+class AppStyle:
+    @staticmethod
+    def apply(window):
+        window.setGeometry(100, 100, 1200, 800)  
+
+        # Establecer el color de fondo
+        window.setStyleSheet("background-color: #5f7eb2;")
+
 class Ventana(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Selección de parámetros")
-        self.setMinimumSize(600, 400)  # Establecer el tamaño mínimo de la ventana
-        self.setMaximumSize(800, 600)  # Establecer el tamaño máximo de la ventana
+
+        # Aplicar el estilo
+        AppStyle.apply(self)
 
         # Crear un área de desplazamiento
         self.scroll_area = QScrollArea()
