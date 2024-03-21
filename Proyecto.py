@@ -1,16 +1,22 @@
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QAction, QPushButton, QWidget, QMenuBar
-from PySide2.QtGui import QPixmap
+from PySide2.QtGui import QPixmap,QColor
 from PySide2.QtCore import Qt
+
+class AppStyle:
+    @staticmethod
+    def apply(window):
+        # Configurar el tamaño de la ventana
+        window.setGeometry(100, 100, 1200, 800)  
+        color_fondo = QColor(135, 158, 197)
+        window.setStyleSheet(f'background-color: {color_fondo.name()};')
 
 class ProyectoWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Configurar la ventana principal
-        self.setWindowTitle("Proyecto")
-        self.setGeometry(100, 100, 800, 600)
-        self.setStyleSheet("background-color: #879ec5;")
+        # Aplicar el estilo
+        AppStyle.apply(self)
 
         # Layout principal
         layout = QVBoxLayout()
@@ -53,12 +59,7 @@ class ProyectoWindow(QWidget):
         proyecto_menu.addAction(abrir_action)
         proyecto_menu.addAction(borrar_action)
 
-
         return menu_bar
-    
-        #Mejorar el navbar, Mejorar pantallas
-        #Ajustar pantallas
-        #Acomodar clases
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
