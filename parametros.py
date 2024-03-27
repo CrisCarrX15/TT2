@@ -1,78 +1,92 @@
 import sys
-from PySide2.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QGroupBox, QCheckBox, QScrollArea
+import control_dict as control
+CONTROL_DICT = control.CONTROL_DICT
+from PySide2.QtWidgets import QApplication, QMainWindow, QFormLayout, QLabel, QWidget, QComboBox, QScrollBar, QVBoxLayout, QPushButton, QScrollArea
+from PySide2.QtGui import QColor, QFont
 from PySide2.QtCore import Qt
-
-import input_values
 
 class AppStyle:
     @staticmethod
     def apply(window):
-        window.setGeometry(100, 100, 1200, 800)  
+        # Establecer el tamaño mínimo y máximo de la ventana
+        window.setMinimumSize(800, 600)
+        window.setMaximumSize(1600, 1200)
 
         # Establecer el color de fondo
-        window.setStyleSheet("background-color: #5f7eb2;")
+        color_fondo = QColor("#5f7eb2")  # Color azul
+        window.setStyleSheet(f'background-color: {color_fondo.name()};')
 
-class Ventana(QWidget):
-    def __init__(self):
+        # Estilo para los botones
+        button_style = """
+            QPushButton {
+                background-color: #f0a500; /* Color naranja */
+                color: white;
+                font-size: 18px;
+                min-width: 150px;
+                min-height: 40px;
+                border: 2px solid #f0a500; /* Mismo color que el fondo */
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #e69500; /* Tonos más oscuros de naranja */
+                border: 2px solid #e69500;
+            }
+            """
+        # Combinar el estilo general de la ventana con el estilo de los botones
+        window.setStyleSheet(window.styleSheet() + button_style)
+
+class ParametrosWindow(QMainWindow):
+    def __init__(self, control_dict):
         super().__init__()
-        self.setWindowTitle("Selección de parámetros")
+        self.control_dict = control_dict
+        self.setWindowTitle("Parametros")
 
-        # Aplicar el estilo
-        AppStyle.apply(self)
+        central_widget = QWidget()
+        scroll_area = QScrollArea()
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setWidgetResizable(True)
 
-        # Crear un área de desplazamiento
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)  # Permitir que el contenido sea redimensionable
-        self.layout = QVBoxLayout()
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setSpacing(20)
 
-        # Iterar sobre los parámetros definidos en CONTROL_VALUES
-        for parametro, detalles in input_values.CONTROL_VALUES.items():
-            label = QLabel(parametro)
-            self.layout.addWidget(label)
+        self.create_widgets(scroll_layout)
 
-            # Dependiendo del input_type, crea el widget correspondiente
-            if detalles['input_type'] == 'select_multiple':
-                combo_box = QComboBox()
-                for valor in detalles['values']:
-                    combo_box.addItem(valor)
-                combo_box.currentIndexChanged.connect(self.on_selection_change)
-                self.layout.addWidget(combo_box)
+        scroll_area.setWidget(scroll_widget)
+        central_layout = QVBoxLayout(central_widget)
+        central_layout.addWidget(scroll_area)
 
-            elif detalles['input_type'] == 'text':
-                line_edit = QLineEdit()
-                line_edit.textChanged.connect(self.on_text_change)
-                self.layout.addWidget(line_edit)
+        self.setCentralWidget(central_widget)
 
-            elif detalles['input_type'] == 'automatic':
-                line_edit = QLineEdit()
-                line_edit.setReadOnly(True)  # Hacer que el QLineEdit sea de solo lectura
-                self.layout.addWidget(line_edit)
+    def create_widgets(self, layout):
+        for key, config in self.control_dict.items():
+            label = QLabel(f"{key}: {config['info']}")
+            layout.addWidget(label)
+            
+            input_type = config.get('input_type', None)  # Get input_type if present, otherwise None
 
-            else:
-                # Manejar otros tipos de entrada si es necesario
-                pass
+            if input_type is not None and input_type == 'select_multiple':
+                combobox = QComboBox()
+                combobox.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
+                combobox.addItems([''] + config['options'])  # Agregar una opción vacía al principio
+                layout.addWidget(combobox)
+        
+        # Agregar botones
+        button_layout = QVBoxLayout()
+        button_layout.setSpacing(10)
+        layout.addLayout(button_layout)
 
-        # Crear un widget que contendrá el diseño principal
-        contenido_widget = QWidget()
-        contenido_widget.setLayout(self.layout)
-        self.scroll_area.setWidget(contenido_widget)
+        save_button = QPushButton("Guardar")
+        button_layout.addWidget(save_button)
 
-        # Establecer el diseño principal de la ventana como el área de desplazamiento
-        self.main_layout = QVBoxLayout()
-        self.main_layout.addWidget(self.scroll_area)
-        self.setLayout(self.main_layout)
-
-    def on_selection_change(self, index):
-        combo_box = self.sender()
-        selected_value = combo_box.currentText()
-        print(f"Opción seleccionada: {selected_value}")
-
-    def on_text_change(self, text):
-        line_edit = self.sender()
-        print(f"Texto escrito: {text}")
+        cancel_button = QPushButton("Cancelar")
+        button_layout.addWidget(cancel_button)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ventana = Ventana()
-    ventana.show()
+    parametros_window = ParametrosWindow(CONTROL_DICT)
+    AppStyle.apply(parametros_window)  # Aplicar el estilo a la ventana
+    parametros_window.show()
     sys.exit(app.exec_())
+
