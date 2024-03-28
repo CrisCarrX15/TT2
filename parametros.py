@@ -1,8 +1,22 @@
+###################################################
+##                                               ##
+##  quantum_espresso_io.py                       ##
+##    Modules to create, modify and delete       ##
+##    Quantum ESPRESSO files                     ##
+##                                               ##
+##  Authors:                                     ##
+##    Marco Uriel Aguilar Lara                   ##
+##    Cristian Eduardo Carrillo Soto             ##
+##                                               ##
+##  From: ESCOM, National Polytechnic Institute  ##
+##                                               ##
+###################################################
+
+
 import sys
 from control_dict import CONTROL_DICT
 from system_dict import SYSTEM_DICT
-from PySide2.QtWidgets import QApplication, QMainWindow, QFormLayout, QLabel, QWidget, QComboBox, QScrollBar, QVBoxLayout, QPushButton, QScrollArea, QTabWidget
-from PySide2.QtWidgets import QApplication, QMainWindow, QFormLayout, QLabel, QWidget, QComboBox, QScrollBar, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy
+from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel
 from PySide2.QtGui import QColor, QFont
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QLineEdit
@@ -112,18 +126,31 @@ class ParametrosWindow(QMainWindow):
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # Establecer política de tamaño para expandirse horizontalmente
         button_layout.addWidget(cancel_button)
 
+        # Conectar el botón "Guardar" a la función guardar_informacion
+        save_button.clicked.connect(self.guardar_informacion)
+
     def guardar_informacion(self):
-        # Recopilar información de ambas pestañas y hacer algo con ella
+     # Recopilar información de ambas pestañas y hacer algo con ella
         control_info = self.get_tab_info(self.tab1)
         system_info = self.get_tab_info(self.tab2)
-        print("Información de Control Dict:", control_info)
-        print("Información de System Dict:", system_info)
+    
+        print("Información de Control Dict:")
+        for key, value in control_info.items():
+            print(f"{key}: {value}")
+
+        print("\nInformación de System Dict:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
 
     def get_tab_info(self, tab):
         info = {}
-        for widget in tab.findChildren(QComboBox):  # Buscar todos los ComboBox en la pestaña
-            key = widget.parentWidget().layout().itemAt(0).widget().text().split(':')[0]  # Obtener la clave del QLabel
-            value = widget.currentText()  # Obtener el texto seleccionado del ComboBox
+        for widget in tab.findChildren(QLabel):  # Buscar todos los QLabel en la pestaña
+            key = widget.text().split(':')[0]  # Obtener la clave del QLabel
+            value = None
+            if isinstance(widget.parent().layout().itemAt(1).widget(), QComboBox):  # Verificar si el widget siguiente es un QComboBox
+                value = widget.parent().layout().itemAt(1).widget().currentText()  # Obtener el texto seleccionado del QComboBox
+            elif isinstance(widget.parent().layout().itemAt(1).widget(), QLineEdit):  # Verificar si el widget siguiente es un QLineEdit
+                value = widget.parent().layout().itemAt(1).widget().text()  # Obtener el texto escrito en el QLineEdit
             info[key] = value
         return info
 
