@@ -16,6 +16,7 @@
 import sys
 from control_dict import CONTROL_DICT
 from system_dict import SYSTEM_DICT
+from quantum_espresso_io import create_in_file
 from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel
 from PySide2.QtGui import QColor, QFont
 from PySide2.QtCore import Qt
@@ -59,6 +60,11 @@ class ParametrosWindow(QMainWindow):
         self.control_dict = control_dict
         self.system_dict = system_dict
         self.setWindowTitle("Parametros")
+        self.widget_dict = {}  # Inicializar el diccionario de widgets como variable de instancia
+        self.tab_widget_dict_widgets = {}  # Diccionario para almacenar los widgets de cada pestaña
+        # ADD NAME OF TABS
+        self.tab_control_name = 'CONTROL'
+        self.tab_system_name = 'SYSTEM'
 
         central_widget = QWidget()
 
@@ -69,18 +75,18 @@ class ParametrosWindow(QMainWindow):
         self.tab1 = QWidget()
         self.tab2 = QWidget()
 
-        self.tab_widget.addTab(self.tab1, "Control Dict")
-        self.tab_widget.addTab(self.tab2, "System Dict")
+        self.tab_widget.addTab(self.tab1, self.tab_control_name)
+        self.tab_widget.addTab(self.tab2, self.tab_system_name)
 
-        self.setup_tab(self.tab1, self.control_dict)
-        self.setup_tab(self.tab2, self.system_dict)
+        self.setup_tab(self.tab1, self.control_dict, self.tab_control_name)
+        self.setup_tab(self.tab2, self.system_dict, self.tab_system_name)
 
         central_layout = QVBoxLayout(central_widget)
         central_layout.addWidget(self.tab_widget)
 
         self.setCentralWidget(central_widget)
 
-    def setup_tab(self, tab, control_dict):
+    def setup_tab(self, tab, control_dict, tab_index):
         scroll_area = QScrollArea()
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -90,14 +96,15 @@ class ParametrosWindow(QMainWindow):
         scroll_layout = QVBoxLayout(scroll_widget)
         scroll_layout.setSpacing(20)
 
-        self.create_widgets(control_dict, scroll_layout)
+        self.create_widgets(control_dict, scroll_layout, tab_index)
 
         scroll_area.setWidget(scroll_widget)
         tab_layout = QVBoxLayout(tab)
         tab_layout.addWidget(scroll_area)
 
     
-    def create_widgets(self, control_dict, layout):
+    def create_widgets(self, control_dict, layout, tab_index):
+        widget_dict = {}  # Diccionario para almacenar los widgets de esta pestaña específica
         for key, config in control_dict.items():
             label = QLabel(f"{key}: {config.get('info', 'No information available')}")
             layout.addWidget(label)
@@ -109,9 +116,14 @@ class ParametrosWindow(QMainWindow):
                 combobox.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
                 combobox.addItems([''] + config['options'])  # Agregar una opción vacía al principio
                 layout.addWidget(combobox)
+                widget_dict[label] = combobox  # Agregar el QLabel y el QComboBox al diccionario
             else:
                 text_edit = QLineEdit()  # Use un QLineEdit para que el usuario pueda escribir texto
                 layout.addWidget(text_edit)
+                widget_dict[label] = text_edit  # Agregar el QLabel y el QLineEdit al diccionario
+        
+        self.tab_widget_dict_widgets[tab_index] = widget_dict  # Almacenar el diccionario de widgets para esta pestaña específica
+
 
         # Agregar botones
         button_layout = QVBoxLayout()
@@ -130,9 +142,15 @@ class ParametrosWindow(QMainWindow):
         save_button.clicked.connect(self.guardar_informacion)
 
     def guardar_informacion(self):
-     # Recopilar información de ambas pestañas y hacer algo con ella
-        control_info = self.get_tab_info(self.tab1)
-        system_info = self.get_tab_info(self.tab2)
+     # Recopilar información de ambas pestañas y hacerself.tab1, s algo con ella
+        control_info = self.get_tab_info(self.tab_control_name)
+        system_info = self.get_tab_info(self.tab_system_name)
+
+        info_dict = {}
+        info_dict['CONTROL'] = control_info
+        info_dict['SYSTEM'] = system_info
+
+        create_in_file(info_dict)
     
         print("Información de Control Dict:")
         for key, value in control_info.items():
@@ -142,15 +160,18 @@ class ParametrosWindow(QMainWindow):
         for key, value in system_info.items():
             print(f"{key}: {value}")
 
-    def get_tab_info(self, tab):
+    def get_tab_info(self, tab_index):
         info = {}
-        for widget in tab.findChildren(QLabel):  # Buscar todos los QLabel en la pestaña
-            key = widget.text().split(':')[0]  # Obtener la clave del QLabel
-            value = None
-            if isinstance(widget.parent().layout().itemAt(1).widget(), QComboBox):  # Verificar si el widget siguiente es un QComboBox
-                value = widget.parent().layout().itemAt(1).widget().currentText()  # Obtener el texto seleccionado del QComboBox
-            elif isinstance(widget.parent().layout().itemAt(1).widget(), QLineEdit):  # Verificar si el widget siguiente es un QLineEdit
-                value = widget.parent().layout().itemAt(1).widget().text()  # Obtener el texto escrito en el QLineEdit
+        widget_dict = self.tab_widget_dict_widgets.get(tab_index, {})  # Obtener el diccionario de widgets para la pestaña actual
+        for label, widget in widget_dict.items():
+            if isinstance(widget, QComboBox):  # Verificar si el widget es un QComboBox
+                value = widget.currentText()  # Obtener el texto seleccionado del QComboBox
+            elif isinstance(widget, QLineEdit):  # Verificar si el widget es un QLineEdit
+                value = widget.text()  # Obtener el texto escrito en el QLineEdit
+            else:
+                value = None
+            key = label.text().split(':')[0]  # Obtener la clave del QLabel
+            print(f'Encontrando en el parametro {key} el valor {value}')
             info[key] = value
         return info
 
