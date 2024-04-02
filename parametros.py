@@ -14,43 +14,39 @@
 
 
 import sys
+from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog
+from PySide2.QtGui import QColor, QFont
+from functools import partial
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QTextEdit
 from control_dict import CONTROL_DICT
 from system_dict import SYSTEM_DICT
 from quantum_espresso_io import create_in_file
-from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel
-from PySide2.QtGui import QColor, QFont
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QLineEdit
 
 class AppStyle:
     @staticmethod
     def apply(window):
-        # Establecer el tamaño mínimo y máximo de la ventana
         window.setMinimumSize(800, 600)
         window.setMaximumSize(1600, 1200)
-
-        # Establecer el color de fondo
-        color_fondo = QColor("#5f7eb2")  # Color azul
+        color_fondo = QColor("#5f7eb2")
         window.setStyleSheet(f'background-color: {color_fondo.name()};')
 
-        # Estilo para los botones
         button_style = """
             QPushButton {
-                background-color: #f0a500; /* Color naranja */
+                background-color: #f0a500;
                 color: white;
                 font-size: 18px;
                 min-width: 150px;
                 min-height: 40px;
-                border: 2px solid #f0a500; /* Mismo color que el fondo */
+                border: 2px solid #f0a500;
                 border-radius: 5px;
-                padding: 10px 20px; /* Aumentar el espacio interior */
+                padding: 10px 20px;
             }
             QPushButton:hover {
-                background-color: #e69500; /* Tonos más oscuros de naranja */
+                background-color: #e69500;
                 border: 2px solid #e69500;
             }
             """
-        # Combinar el estilo general de la ventana con el estilo de los botones
         window.setStyleSheet(window.styleSheet() + button_style)
 
 
@@ -60,18 +56,14 @@ class ParametrosWindow(QMainWindow):
         self.control_dict = control_dict
         self.system_dict = system_dict
         self.setWindowTitle("Parametros")
-        self.widget_dict = {}  # Inicializar el diccionario de widgets como variable de instancia
-        self.tab_widget_dict_widgets = {}  # Diccionario para almacenar los widgets de cada pestaña
-        # ADD NAME OF TABS
+        self.widget_dict = {}
+        self.tab_widget_dict_widgets = {}
         self.tab_control_name = 'CONTROL'
         self.tab_system_name = 'SYSTEM'
 
         central_widget = QWidget()
 
-        # Crear un widget de pestañas
         self.tab_widget = QTabWidget()
-
-        # Crear pestañas para los parámetros
         self.tab1 = QWidget()
         self.tab2 = QWidget()
 
@@ -102,47 +94,75 @@ class ParametrosWindow(QMainWindow):
         tab_layout = QVBoxLayout(tab)
         tab_layout.addWidget(scroll_area)
 
-    
+
     def create_widgets(self, control_dict, layout, tab_index):
-        widget_dict = {}  # Diccionario para almacenar los widgets de esta pestaña específica
+        widget_dict = {}
         for key, config in control_dict.items():
-            label = QLabel(f"{key}: {config.get('info', 'No information available')}")
-            layout.addWidget(label)
-            
-            input_type = config.get('input_type', None)  # Get input_type if present, otherwise None
+            full_text = f"{key}: {config.get('info', 'No information available')}"
+            if len(full_text) > 50:
+                label = QLabel(full_text[:50] + "...")
+                button = QPushButton("Ver más")
+                button.setStyleSheet("background-color: #CCCCCC;")  # Cambiar color a gris
+                button.setMaximumWidth(100)  # Establecer el ancho máximo del botón
+                self.connect_button_clicked(button, full_text)  # Conecta el botón al hacer clic
+                layout.addWidget(label)
+                layout.addWidget(button)
+            else:
+                label = QLabel(full_text)
+                layout.addWidget(label)
+
+            input_type = config.get('input_type', None)
 
             if input_type is not None and input_type == 'select_multiple':
                 combobox = QComboBox()
-                combobox.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
-                combobox.addItems([''] + config['options'])  # Agregar una opción vacía al principio
+                combobox.setFont(QFont("Arial", 12))
+                combobox.addItems([''] + config['options'])
                 layout.addWidget(combobox)
-                widget_dict[label] = combobox  # Agregar el QLabel y el QComboBox al diccionario
+                widget_dict[label] = combobox
             else:
-                text_edit = QLineEdit()  # Use un QLineEdit para que el usuario pueda escribir texto
+                text_edit = QLineEdit()
                 layout.addWidget(text_edit)
-                widget_dict[label] = text_edit  # Agregar el QLabel y el QLineEdit al diccionario
-        
-        self.tab_widget_dict_widgets[tab_index] = widget_dict  # Almacenar el diccionario de widgets para esta pestaña específica
+                widget_dict[label] = text_edit
 
+        self.tab_widget_dict_widgets[tab_index] = widget_dict
 
-        # Agregar botones
         button_layout = QVBoxLayout()
         button_layout.setSpacing(10)
         layout.addLayout(button_layout)
 
         save_button = QPushButton("Guardar")
-        save_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # Establecer política de tamaño para expandirse horizontalmente
+        save_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(save_button)
 
         cancel_button = QPushButton("Cancelar")
-        cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # Establecer política de tamaño para expandirse horizontalmente
+        cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
 
-        # Conectar el botón "Guardar" a la función guardar_informacion
         save_button.clicked.connect(self.guardar_informacion)
 
+    def show_full_text(self, text):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Texto completo")
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.setMinimumWidth(400)  # Establecer el ancho mínimo del diálogo
+
+        layout = QVBoxLayout()
+
+        text_edit = QTextEdit()
+        text_edit.setPlainText(text)
+        text_edit.setReadOnly(True)  # Hacer el QTextEdit de solo lectura
+        text_edit.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
+        layout.addWidget(text_edit)
+
+        close_button = QPushButton("Cerrar")
+        close_button.clicked.connect(dialog.close)
+        layout.addWidget(close_button)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+
     def guardar_informacion(self):
-     # Recopilar información de ambas pestañas y hacerself.tab1, s algo con ella
         control_info = self.get_tab_info(self.tab_control_name)
         system_info = self.get_tab_info(self.tab_system_name)
 
@@ -162,22 +182,28 @@ class ParametrosWindow(QMainWindow):
 
     def get_tab_info(self, tab_index):
         info = {}
-        widget_dict = self.tab_widget_dict_widgets.get(tab_index, {})  # Obtener el diccionario de widgets para la pestaña actual
+        widget_dict = self.tab_widget_dict_widgets.get(tab_index, {})
         for label, widget in widget_dict.items():
-            if isinstance(widget, QComboBox):  # Verificar si el widget es un QComboBox
-                value = widget.currentText()  # Obtener el texto seleccionado del QComboBox
-            elif isinstance(widget, QLineEdit):  # Verificar si el widget es un QLineEdit
-                value = widget.text()  # Obtener el texto escrito en el QLineEdit
+            if isinstance(widget, QComboBox):
+                value = widget.currentText()
+            elif isinstance(widget, QLineEdit):
+                value = widget.text()
             else:
                 value = None
-            key = label.text().split(':')[0]  # Obtener la clave del QLabel
-            print(f'Encontrando en el parametro {key} el valor {value}')
+            key = label.text().split(':')[0]
             info[key] = value
         return info
+
+    def connect_button_clicked(self, button, text):
+        def on_button_clicked():
+            self.show_full_text(text)
+        button.clicked.connect(on_button_clicked)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     parametros_window = ParametrosWindow(CONTROL_DICT, SYSTEM_DICT)
-    AppStyle.apply(parametros_window)  # Aplicar el estilo a la ventana
+    AppStyle.apply(parametros_window)
     parametros_window.show()
     sys.exit(app.exec_())
+
