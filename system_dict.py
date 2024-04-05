@@ -1,4 +1,5 @@
 SYSTEM_DICT = {'ace': {'default': 'true',
+         'description': 'Adaptive coordinate exchange',
          'info': ' Use Adaptively Compressed Exchange operator as in Lin Lin, '
                  'J. Chem. Theory Comput. 2016, 12, 2242--2249, '
                  'doi:10.1021/acs.jctc.6b00092  Set to false to use standard '
@@ -7,6 +8,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
          'options': ['.FALSE.', '.TRUE.'],
          'type': 'LOGICAL'},
  'assume_isolated': {'default': 'none',
+                     'description': 'Assume isolated option',
                      'info': ' Used to perform calculation assuming the system '
                              'to be isolated (a molecule or a cluster in a 3D '
                              'supercell).  Currently available choices: }',
@@ -14,6 +16,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'options': ['none', 'esm', '2D'],
                      'type': 'CHARACTER'},
  'constrained_magnetization': {'default': 'none',
+                               'description': 'Constrained magnetization',
                                'info': ' Used to perform constrained '
                                        'calculations in magnetic systems. '
                                        'Currently available choices: } N.B.: '
@@ -27,16 +30,19 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                                'options': ['none', 'total', 'atomic'],
                                'type': 'CHARACTER'},
  'degauss': {'default': '0.D0 Ry',
+             'description': 'Gaussian broadening',
              'info': ' value of the gaussian spreading (Ry) for brillouin-zone '
                      'integration in metals. }',
              'type': 'REAL'},
  'degauss_cond': {'default': '0.D0 Ry',
+                  'description': 'Conditional degauss',
                   'info': ' value of the gaussian spreading (Ry) for '
                           'brillouin-zone integration in the conduction '
                           'manifold in a two-chemical potential calculation '
                           '(@ref twochem=.true.). }',
                   'type': 'REAL'},
  'dftd3_threebody': {'default': 'TRUE',
+                     'description': 'DFT-D3 three-body dispersion correction',
                      'info': ' Turn three-body terms in Grimme-D3 on. If '
                              '.false. two-body contributions only are '
                              'computed, using two-body parameters of '
@@ -46,10 +52,12 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'options': ['.FALSE.', '.TRUE.'],
                      'type': 'LOGICAL'},
  'dftd3_version': {'default': '3',
+                   'description': 'DFT-D3 version',
                    'info': ' Version of Grimme implementation of Grimme-D3: } '
                            'NOTE: not all functionals are parametrized. }',
                    'type': 'integer'},
  'dmft': {'default': '.FALSE.',
+          'description': 'Dynamical mean field theory',
           'info': ' If true, nscf calculation will exit in restart mode, scf '
                   'calculation will restart from there if DMFT updates are '
                   'provided as hdf5 archive. Scf calculation should be used '
@@ -60,6 +68,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
           'status': ' Requires compilation with hdf5 support }',
           'type': 'LOGICAL'},
  'dmft_prefix': {'default': '@ref prefix',
+                 'description': 'DMFT prefix',
                  'info': ' prepended to hdf5 archive: dmft_prefix.h5  DMFT '
                          'update should be provided in group/dataset as: - '
                          'dft_misc_input/band_window with dimension [1, number '
@@ -69,6 +78,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                          'correlated orbitals, 2 (real + complex)] }',
                  'type': 'CHARACTER'},
  'eamp': {'default': '0.001 a.u.',
+          'description': 'Electric field amplitude',
           'info': ' Amplitude of the electric field, in ***Hartree*** a.u.; 1 '
                   'a.u. = 51.4220632*10^10 V/m. Used only if @ref '
                   'tefield==.TRUE. The saw-like potential increases with slope '
@@ -79,8 +89,11 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                   'be located in the empty region, or else unphysical forces '
                   'will result. }',
           'type': 'REAL'},
- 'ecfixed': {'default': '0.0', 'type': 'REAL'},
+ 'ecfixed': {'default': '0.0',
+             'description': 'Fixed total energy',
+             'type': 'REAL'},
  'ecutfock': {'default': 'ecutrho',
+              'description': 'Fock operator cutoff energy',
               'info': ' Kinetic energy cutoff (Ry) for the exact exchange '
                       'operator in EXX type calculations. By default this is '
                       'the same as @ref ecutrho but in some EXX calculations, '
@@ -92,6 +105,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                       'to instabilities. }',
               'type': 'REAL'},
  'ecutrho': {'default': '4 * @ref ecutwfc',
+             'description': 'Charge density cutoff energy',
              'info': ' Kinetic energy cutoff (Ry) for charge density and '
                      'potential For norm-conserving pseudopotential you should '
                      'stick to the default value, you can reduce it by a '
@@ -107,25 +121,30 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'to be accurately converged. }',
              'type': 'REAL'},
  'ecutvcut': {'default': '0.0 Ry',
+              'description': 'Cut-off for vacuum',
               'info': ' Reciprocal space cutoff for correcting Coulomb '
                       'potential divergencies at small q vectors. }',
               'type': 'REAL'},
- 'ecutwfc': {'info': ' kinetic energy cutoff (Ry) for wavefunctions }',
+ 'ecutwfc': {'description': 'Wavefunction cutoff energy',
+             'info': ' kinetic energy cutoff (Ry) for wavefunctions }',
              'status': 'REQUIRED',
              'type': 'REAL'},
- 'edir': {'info': ' The direction of the electric field or dipole correction '
+ 'edir': {'description': 'Electric field direction',
+          'info': ' The direction of the electric field or dipole correction '
                   'is parallel to the bg(:,edir) reciprocal lattice vector, so '
                   'the potential is constant in planes defined by FFT grid '
                   'points; @ref edir = 1, 2 or 3. Used only if @ref tefield is '
                   '.TRUE. }',
           'type': 'INTEGER'},
  'emaxpos': {'default': '0.5D0',
+             'description': 'Maximum positions',
              'info': ' Position of the maximum of the saw-like potential along '
                      'crystal axis @ref edir, within the  unit cell (see '
                      'below), 0 < emaxpos < 1 Used only if @ref tefield is '
                      '.TRUE. }',
              'type': 'REAL'},
  'ensemble_energies': {'default': '.false.',
+                       'description': 'Ensemble energies',
                        'info': ' If @ref ensemble_energies = .true., an '
                                'ensemble of xc energies is calculated '
                                'non-selfconsistently for perturbed '
@@ -141,11 +160,13 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                        'options': ['.FALSE.', '.TRUE.'],
                        'type': 'LOGICAL'},
  'eopreg': {'default': '0.1D0',
+            'description': 'External pressure regularization',
             'info': ' Zone in the unit cell where the saw-like potential '
                     'decreases. ( see below, 0 < eopreg < 1 ). Used only if '
                     '@ref tefield is .TRUE. }',
             'type': 'REAL'},
  'esm_bc': {'default': 'pbc',
+            'description': 'ESM boundary conditions',
             'info': " If @ref assume_isolated = 'esm', determines the boundary "
                     'conditions used for either side of the slab.  Currently '
                     'available choices: }',
@@ -153,23 +174,27 @@ SYSTEM_DICT = {'ace': {'default': 'true',
             'options': ['bc1', 'bc2', 'bc3'],
             'type': 'CHARACTER'},
  'esm_efield': {'default': '0.d0',
+                'description': 'ESM electric field',
                 'info': " If @ref assume_isolated = 'esm' and @ref esm_bc = "
                         "'bc2', gives the magnitude of the electric field "
                         '[Ry/a.u.] to be applied between semi-infinite ESM '
                         'electrodes. }',
                 'type': 'REAL'},
  'esm_nfit': {'default': '4',
+              'description': 'ESM number of fitting coefficients',
               'info': " If @ref assume_isolated = 'esm', gives the number of "
                       'z-grid points for the polynomial fit along the cell '
                       'edge. }',
               'type': 'INTEGER'},
  'esm_w': {'default': '0.d0',
+           'description': 'ESM weight',
            'info': " If @ref assume_isolated = 'esm', determines the position "
                    'offset [in a.u.] of the start of the effective screening '
                    'region, measured relative to the cell edge. (ESM region '
                    'begins at z = +/- [L_z/2 + esm_w] ). }',
            'type': 'REAL'},
  'exx_fraction': {'default': 'it depends on the specified functional',
+                  'description': 'Fraction of exact exchange',
                   'info': ' Fraction of EXX for hybrid functional '
                           "calculations. In the case of @ref input_dft='PBE0', "
                           'the default value is 0.25, while for @ref '
@@ -177,6 +202,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                           'value is 0.20. }',
                   'type': 'REAL'},
  'exxdiv_treatment': {'default': 'gygi-baldereschi',
+                      'description': 'Exchange-divergent treatment',
                       'info': ' Specific for EXX. It selects the kind of '
                               'approach to be used for treating the Coulomb '
                               'potential divergencies at small q vectors. }',
@@ -187,6 +213,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                                   'none'],
                       'type': 'CHARACTER'},
  'force_symmorphic': {'default': '.FALSE.',
+                      'description': 'Force symmorphic option',
                       'info': ' if (.TRUE.) force the symmetry group to be '
                               'symmorphic by disabling symmetry operations '
                               'having an associated fractionary translation }',
@@ -194,20 +221,24 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                       'options': ['.FALSE.', '.TRUE.'],
                       'type': 'LOGICAL'},
  'gcscf_beta': {'default': '0.05D0',
+                'description': 'Beta for gc scf',
                 'info': ' Mixing factor for GC-SCF. Larger values are '
                         'recommended, if systems with small DOS on Fermi '
                         'surface as graphite. }',
                 'type': 'REAL'},
  'gcscf_conv_thr': {'default': '1.D-2',
+                    'description': 'GC-SCF convergence threshold',
                     'info': ' Convergence threshold of Fermi energy (eV) for '
                             'GC-SCF. }',
                     'type': 'REAL'},
- 'gcscf_mu': {'info': ' The target Fermi energy (eV) of GC-SCF. One can start '
+ 'gcscf_mu': {'description': 'Mu for gc scf',
+              'info': ' The target Fermi energy (eV) of GC-SCF. One can start '
                       'with appropriate total charge of the system by giving '
                       '@ref tot_charge . }',
               'status': 'REQUIRED',
               'type': 'REAL'},
- 'ibrav': {'info': ' Bravais-lattice index. Optional only if space_group is '
+ 'ibrav': {'description': 'Bravais lattice type',
+           'info': ' Bravais-lattice index. Optional only if space_group is '
                    'set. If ibrav /= 0, specify EITHER [ @ref celldm(1)-@ref '
                    'celldm(6) ] OR [ @ref A, @ref B, @ref C, @ref cosAB, @ref '
                    'cosAC, @ref cosBC ] but NOT both. The lattice parameter '
@@ -304,18 +335,21 @@ SYSTEM_DICT = {'ace': {'default': 'true',
            'status': '',
            'type': 'INTEGER'},
  'input_dft': {'default': 'read from pseudopotential files',
+               'description': 'DFT type',
                'info': " Exchange-correlation functional: eg 'PBE', 'BLYP' etc "
                        'See Modules/funct.f90 for allowed values. Overrides '
                        'the value read from pseudopotential files. Use with '
                        'care and if you know what you are doing! }',
                'type': 'CHARACTER'},
  'lambda': {'default': '1.d0',
+            'description': 'Lambda',
             'info': ' parameter used for constrained_magnetization '
                     'calculations N.B.: if the scf calculation does not '
                     'converge, try to reduce lambda to obtain convergence, '
                     'then restart the run with a larger lambda }',
             'type': 'REAL'},
- 'lforcet': {'info': ' When starting a non collinear calculation using an '
+ 'lforcet': {'description': 'Local forces treatment',
+             'info': ' When starting a non collinear calculation using an '
                      'existing density file from a collinear lsda calculation '
                      'assumes previous density points in @i z direction and '
                      'rotates it in the direction described by @ref angle1 and '
@@ -324,6 +358,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
              'options': ['.FALSE.', '.TRUE.'],
              'type': 'LOGICAL'},
  'lgcscf': {'default': '.FALSE.',
+            'description': 'Use of GC-SCF',
             'info': ' If .TRUE. perform a constant bias potential '
                     '(constant-mu) calculation with Grand-Canonical SCF. (JCP '
                     '146, 114104 (2017), R.Sundararaman, et al.)  NB: - The '
@@ -341,7 +376,8 @@ SYSTEM_DICT = {'ace': {'default': 'true',
             'input_type': 'select_multiple',
             'options': ['.FALSE.', '.TRUE.'],
             'type': 'LOGICAL'},
- 'localization_thr': {'info': ' Overlap threshold over which the exchange '
+ 'localization_thr': {'description': 'Localization threshold',
+                      'info': ' Overlap threshold over which the exchange '
                               'integral over a pair of localized orbitals is '
                               'included in the evaluation of EXX operator. Any '
                               'value greater than 0.0 triggers the SCDM '
@@ -351,35 +387,43 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                               'default EXX evaluation }',
                       'type': 'REAL'},
  'london': {'default': '.FALSE.',
+            'description': 'London dispersion correction',
             'input_type': 'select_multiple',
             'options': ['.FALSE.', '.TRUE.'],
             'status': " OBSOLESCENT, same as @ref vdw_corr='DFT-D' }",
             'type': 'LOGICAL'},
  'london_rcut': {'default': '200',
+                 'description': 'London dispersion correction cutoff radius',
                  'info': ' cutoff radius (a.u.) for dispersion interactions }',
                  'type': 'REAL'},
  'london_s6': {'default': '0.75',
+               'description': 'London dispersion correction s6 coefficient',
                'info': ' global scaling parameter for DFT-D. Default is good '
                        'for PBE. }',
                'type': 'REAL'},
- 'lspinorb': {'info': ' if .TRUE. the noncollinear code can use a '
+ 'lspinorb': {'description': 'Spin-orbit coupling',
+              'info': ' if .TRUE. the noncollinear code can use a '
                       'pseudopotential with spin-orbit. }',
               'input_type': 'select_multiple',
               'options': ['.FALSE.', '.TRUE.'],
               'type': 'LOGICAL'},
- 'nat': {'info': ' number of atoms in the unit cell (ALL atoms, except if '
+ 'nat': {'description': 'Number of atoms',
+         'info': ' number of atoms in the unit cell (ALL atoms, except if '
                  'space_group is set, in which case, INEQUIVALENT atoms) }',
          'status': 'REQUIRED',
          'type': 'INTEGER'},
- 'nbnd': {'info': ' Number of electronic states (bands) to be calculated. Note '
+ 'nbnd': {'description': 'Number of Kohn-Sham bands',
+          'info': ' Number of electronic states (bands) to be calculated. Note '
                   'that in spin-polarized calculations the number of k-point, '
                   'not the number of bands per k-point, is doubled }',
           'type': 'INTEGER'},
- 'nbnd_cond': {'info': ' Number of electronic states in the conduction '
+ 'nbnd_cond': {'description': 'Number of bands for conductivity',
+               'info': ' Number of electronic states in the conduction '
                        'manifold for a two chemical-potential calculation '
                        '(@ref twochem=.true.). }',
                'type': 'INTEGER'},
  'nelec_cond': {'default': '0.D0',
+                'description': 'Number of electrons for conductivity',
                 'info': ' Number of electrons placed in the conduction '
                         'manifold in a two-chemical potential calculation '
                         '(@ref twochem=.true.). Of the total # of electrons '
@@ -388,11 +432,13 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                         'conduction manifold. }',
                 'type': 'REAL'},
  'nextffield': {'default': '0',
+                'description': 'Next field',
                 'info': ' Number of activated external ionic force fields. See '
                         'Doc/ExternalForceFields.tex for further explanation '
                         'and parameterizations }',
                 'type': 'INTEGER'},
  'no_t_rev': {'default': '.FALSE.',
+              'description': 'Time reversal symmetry suppression',
               'info': ' if (.TRUE.) disable the usage of magnetic symmetry '
                       'operations that consist in a rotation + time reversal. '
                       '}',
@@ -400,18 +446,21 @@ SYSTEM_DICT = {'ace': {'default': 'true',
               'options': ['.FALSE.', '.TRUE.'],
               'type': 'LOGICAL'},
  'noinv': {'default': '.FALSE.',
+           'description': 'Inversion symmetry suppression',
            'info': ' if (.TRUE.) disable the usage of k => -k symmetry (time '
                    'reversal) in k-point generation }',
            'input_type': 'select_multiple',
            'options': ['.FALSE.', '.TRUE.'],
            'type': 'LOGICAL'},
  'noncolin': {'default': '.false.',
+              'description': 'Non-collinear magnetization',
               'info': ' if .true. the program will perform a noncollinear '
                       'calculation. }',
               'input_type': 'select_multiple',
               'options': ['.FALSE.', '.TRUE.'],
               'type': 'LOGICAL'},
  'nosym': {'default': '.FALSE.',
+           'description': 'Symmetry operation suppression',
            'info': ' if (.TRUE.) symmetry is not used. Consequences:  - if a '
                    'list of k points is provided in input, it is used "as is": '
                    'symmetry-inequivalent k-points are not generated, and the '
@@ -430,6 +479,8 @@ SYSTEM_DICT = {'ace': {'default': 'true',
            'options': ['.FALSE.', '.TRUE.'],
            'type': 'LOGICAL'},
  'nosym_evc': {'default': '.FALSE.',
+               'description': 'Symmetry operation suppression for '
+                              'wavefunctions',
                'info': ' if (.TRUE.) symmetry is not used, and k points are '
                        'forced to have the symmetry of the Bravais lattice; an '
                        'automatically generated Monkhorst-Pack grid will '
@@ -448,6 +499,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                'options': ['.FALSE.', '.TRUE.'],
                'type': 'LOGICAL'},
  'nspin': {'default': '1',
+           'description': 'Spin polarized calculation',
            'info': ' nspin = 1 :  non-polarized calculation (default)  nspin = '
                    '2 :  spin-polarized calculation, LSDA (magnetization along '
                    'z axis)  nspin = 4 :  spin-polarized calculation, '
@@ -455,10 +507,12 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                    'specify @ref nspin in this case; specify @ref '
                    'noncolin=.TRUE. instead }',
            'type': 'INTEGER'},
- 'ntyp': {'info': ' number of types of atoms in the unit cell }',
+ 'ntyp': {'description': 'Number of atom types',
+          'info': ' number of types of atoms in the unit cell }',
           'status': 'REQUIRED',
           'type': 'INTEGER'},
- 'occupations': {'info': '',
+ 'occupations': {'description': 'Occupations',
+                 'info': '',
                  'input_type': 'select_multiple',
                  'options': ['smearing',
                              'tetrahedra',
@@ -468,6 +522,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                              'from_input'],
                  'type': 'CHARACTER'},
  'one_atom_occupations': {'default': '.FALSE.',
+                          'description': 'One atom occupations',
                           'info': ' This flag is used for isolated atoms (@ref '
                                   'nat=1) together with @ref '
                                   "occupations='from_input'. If it is .TRUE., "
@@ -500,16 +555,19 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                           'options': ['.FALSE.', '.TRUE.'],
                           'type': 'LOGICAL'},
  'origin_choice': {'default': '1',
+                   'description': 'Origin choice',
                    'info': ' Used only for space groups that in the ITA allow '
                            'the use of two different origins. @ref '
                            'origin_choice=1, means the first origin, while '
                            '@ref origin_choice=2 is the second origin. }',
                    'type': 'INTEGER'},
- 'pol_type': {'info': ' Type of polaron in gammaDFT. }',
+ 'pol_type': {'description': 'Polarization type',
+              'info': ' Type of polaron in gammaDFT. }',
               'input_type': 'select_multiple',
               'options': ['e', 'h'],
               'type': 'CHARACTER'},
  'q2sigma': {'default': '0.1',
+             'description': 'Sigma for broadening',
              'info': ' ecfixed, qcutz, q2sigma:  parameters for modified '
                      'functional to be used in variable-cell molecular '
                      'dynamics (or in stress calculation). "ecfixed" is the '
@@ -522,12 +580,16 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'Chem. Solids 56, 501 (1995), '
                      'doi:10.1016/0022-3697(94)00228-2 }',
              'type': 'REAL'},
- 'qcutz': {'default': '0.0', 'type': 'REAL'},
+ 'qcutz': {'default': '0.0',
+           'description': 'Zone sampling cut-off',
+           'type': 'REAL'},
  'report': {'default': '-1',
+            'description': 'Report',
             'info': ' determines when atomic magnetic moments are printed on '
                     'output: @b {report = 0}  never',
             'type': 'INTEGER'},
  'rhombohedral': {'default': '.TRUE.',
+                  'description': 'Rhombohedral',
                   'info': ' Used only for rhombohedral space groups. When '
                           '.TRUE. the coordinates of the inequivalent atoms '
                           'are given with respect to the rhombohedral axes, '
@@ -539,17 +601,20 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                   'options': ['.FALSE.', '.TRUE.'],
                   'type': 'LOGICAL'},
  'sci_cb': {'default': '0',
+            'description': 'Conduction band spin',
             'info': ' Conduction band band shift (in eV) through '
                     'self-consistent scissor operator. When performing '
                     'gammaDFT calculations of polarons, the polaron level is '
                     'not shifted. }',
             'type': 'REAL'},
  'sci_vb': {'default': '0',
+            'description': 'Valence band spin',
             'info': ' Valence band shift (in eV) through self-consistent '
                     'scissor operator. When performing gammaDFT calculations '
                     'of polarons, the polaron level is not shifted. }',
             'type': 'REAL'},
  'screening_parameter': {'default': '0.106',
+                         'description': 'Screening parameter',
                          'info': ' screening_parameter for HSE like hybrid '
                                  'functionals. For more information, see: J. '
                                  'Chem. Phys. 118, 8207 (2003), '
@@ -557,6 +622,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                                  '219906 (2006), doi:10.1063/1.2204597 }',
                          'type': 'REAL'},
  'sic_energy': {'default': '.false.',
+                'description': 'SIC energy',
                 'info': ' Enable the calculation of the total energy in '
                         'gammaDFT. When .true., a preliminary calculation is '
                         'performed to calculate the electron density in the '
@@ -568,12 +634,15 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                 'options': ['.FALSE.', '.TRUE.'],
                 'type': 'LOGICAL'},
  'sic_gamma': {'default': '0',
+               'description': 'SIC gamma',
                'info': ' Strength of the gammaDFT potential. }',
                'type': 'REAL'},
  'smearing': {'default': 'gaussian',
+              'description': 'Smearing technique',
               'info': ' Available options are: }',
               'type': 'CHARACTER'},
  'space_group': {'default': '0',
+                 'description': 'Space group',
                  'info': ' The number of the space group of the crystal, as '
                          'given in the International Tables of Crystallography '
                          'A (ITA). This allows to give in input only the '
@@ -584,6 +653,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                          'origin_choice, @ref rhombohedral }',
                  'type': 'INTEGER'},
  'starting_spin_angle': {'default': '.FALSE.',
+                         'description': 'Starting spin angle',
                          'info': ' In the spin-orbit case when @ref '
                                  'domag=.TRUE., by default, the starting '
                                  'wavefunctions are initialized as in scalar '
@@ -602,6 +672,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                          'options': ['.FALSE.', '.TRUE.'],
                          'type': 'LOGICAL'},
  'tot_charge': {'default': '0.0',
+                'description': 'Total charge',
                 'info': ' Total charge of the system. Useful for simulations '
                         'with charged cells. By default the unit cell is '
                         'assumed to be neutral (tot_charge=0). tot_charge=+1 '
@@ -612,6 +683,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                         'cell is not neutral. }',
                 'type': 'REAL'},
  'tot_magnetization': {'default': '-10000 [unspecified]',
+                       'description': 'Total magnetization',
                        'info': ' Total majority spin charge - minority spin '
                                'charge. Used to impose a specific total '
                                'electronic magnetization. If unspecified then '
@@ -620,12 +692,14 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                                'determined during the self-consistent cycle. }',
                        'type': 'REAL'},
  'ts_vdw_econv_thr': {'default': '1.D-6',
+                      'description': 'TS-vdW energy convergence threshold',
                       'info': ' Optional: controls the convergence of the vdW '
                               'energy (and forces). The default value is a '
                               'safe choice, likely too safe, but you do not '
                               'gain much in increasing it }',
                       'type': 'REAL'},
  'ts_vdw_isolated': {'default': '.FALSE.',
+                     'description': 'TS-vdW isolated',
                      'info': ' Optional: set it to .TRUE. when computing the '
                              'Tkatchenko-Scheffler vdW energy or the Many-Body '
                              'dispersion (MBD) energy for an isolated '
@@ -634,6 +708,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'options': ['.FALSE.', '.TRUE.'],
                      'type': 'LOGICAL'},
  'uniqueb': {'default': '.FALSE.',
+             'description': 'Unique B',
              'info': ' Used only for monoclinic lattices. If .TRUE. the b '
                      'unique @ref ibrav (-12 or -13) are used, and symmetry '
                      'equivalent positions are chosen assuming that the '
@@ -643,6 +718,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
              'options': ['.FALSE.', '.TRUE.'],
              'type': 'LOGICAL'},
  'use_all_frac': {'default': '.FALSE.',
+                  'description': 'Use of all fractional coordinates',
                   'info': ' if (.FALSE.) force real-space FFT grids to be '
                           'commensurate with fractionary translations of '
                           'non-symmorphic symmetry operations, if present '
@@ -660,9 +736,11 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                   'options': ['.FALSE.', '.TRUE.'],
                   'type': 'LOGICAL'},
  'vdw_corr': {'default': 'none',
+              'description': 'Van der Waals correction',
               'info': ' Type of Van der Waals correction. Allowed values: }',
               'type': 'CHARACTER'},
- 'x_gamma_extrapolation': {'info': ' Specific for EXX. If .true., extrapolate '
+ 'x_gamma_extrapolation': {'description': 'Extrapolation in Gamma',
+                           'info': ' Specific for EXX. If .true., extrapolate '
                                    'the G=0 term of the potential (see README '
                                    'in examples/EXX_example for more) Set this '
                                    'to .false. for GAU-PBE. }',
@@ -670,11 +748,13 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                            'options': ['.FALSE.', '.TRUE.'],
                            'type': 'LOGICAL'},
  'xdm': {'default': '.FALSE.',
+         'description': 'Dispersion corrections',
          'input_type': 'select_multiple',
          'options': ['.FALSE.', '.TRUE.'],
          'status': " OBSOLESCENT, same as @ref vdw_corr='xdm' }",
          'type': 'LOGICAL'},
  'xdm_a1': {'default': '0.6836',
+            'description': 'Exchange dispersion correction parameter',
             'info': ' Damping function parameter a1 (adimensional). It is NOT '
                     'necessary to give a value if the functional is one of '
                     'B86bPBE, PW86PBE, PBE, BLYP. For functionals in this '
@@ -684,6 +764,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                     'doi:10.1063/1.4705760 }',
             'type': 'REAL'},
  'xdm_a2': {'default': '1.5045',
+            'description': 'Exchange dispersion correction parameter A2',
             'info': ' Damping function parameter a2 (angstrom). It is NOT '
                     'necessary to give a value if the functional is one of '
                     'B86bPBE, PW86PBE, PBE, BLYP. For functionals in this '

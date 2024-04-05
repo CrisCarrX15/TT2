@@ -1,6 +1,6 @@
 CONTROL_DICT = {'calculation': {'default': 'scf',
                  'info': ' A string describing the task to be performed. '
-                         'Options are: } (vc = variable-cell). }',
+                         ' (vc = variable-cell).',
                  'input_type': 'select_multiple',
                  'options': ['scf',
                              'nscf',
@@ -9,7 +9,8 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                              'md',
                              'vc-relax',
                              'vc-md'],
-                 'type': 'CHARACTER'},
+                 'type': 'CHARACTER',
+                 'description' : 'Calculation type'},
  'dipfield': {'default': '.FALSE.',
               'info': ' If .TRUE. and @ref tefield==.TRUE. a dipole correction '
                       'is also added to the bare ionic potential - implements '
@@ -17,26 +18,29 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                       'variables @ref edir, @ref emaxpos, @ref eopreg for the '
                       'form of the correction. Must be used ONLY in a slab '
                       'geometry, for surface calculations, with the '
-                      'discontinuity FALLING IN THE EMPTY SPACE. }',
+                      'discontinuity FALLING IN THE EMPTY SPACE.',
               'input_type': 'select_multiple',
               'options': ['.FALSE.', '.TRUE.'],
-              'type': 'LOGICAL'},
+              'type': 'LOGICAL',
+              'description' : 'Electric dipole field.'},
  'disk_io': {'default': 'see below',
              'info': ' Specifies the amount of disk I/O activity: (only for '
                      'binary files and xml data file in data directory; other '
                      'files printed at each molecular dynamics / structural '
-                     'optimization step are not controlled by this option ) } '
+                     'optimization step are not controlled by this option ) '
                      "@b Default is @b 'low' for the scf case, @b 'medium' "
                      'otherwise. Note that the needed RAM increases as disk '
-                     'I/O decreases  }',
+                     'I/O decreases',
              'input_type': 'select_multiple',
              'options': ['high', 'medium', 'low', 'nowf', 'minimal', 'none'],
-             'type': 'CHARACTER'},
+             'type': 'CHARACTER',
+             'description' : 'Disk input/output.'},
  'dt': {'default': '20.D0',
         'info': ' time step for molecular dynamics, in Rydberg atomic units (1 '
                 'a.u.=4.8378 * 10^-17 s : beware, the CP code uses Hartree '
-                'atomic units, half that much!!!) }',
-        'type': 'REAL'},
+                'atomic units, half that much!!!)',
+        'type': 'REAL',
+        'description' : 'Time step.'},
  'etot_conv_thr': {'default': '1.0D-4',
                    'info': ' Convergence threshold on total energy (a.u) for '
                            'ionic minimization: the convergence criterion is '
@@ -44,15 +48,17 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                            '@ref etot_conv_thr between two consecutive scf '
                            'steps. Note that @ref etot_conv_thr is extensive, '
                            'like the total energy. See also @ref forc_conv_thr '
-                           '- both criteria must be satisfied }',
-                   'type': 'REAL'},
+                           '- both criteria must be satisfied',
+                   'type': 'REAL',
+                   'description' : 'Total energy convergence threshold.'},
  'forc_conv_thr': {'default': '1.0D-3',
                    'info': ' Convergence threshold on forces (a.u) for ionic '
                            'minimization: the convergence criterion is '
                            'satisfied when all components of all forces are '
                            'smaller than @ref forc_conv_thr. See also @ref '
-                           'etot_conv_thr - both criteria must be satisfied }',
-                   'type': 'REAL'},
+                           'etot_conv_thr - both criteria must be satisfied',
+                   'type': 'REAL',
+                   'description' : 'Force convergence threshold.'},
  'gate': {'default': '.FALSE.',
           'info': ' In the case of charged cells (@ref tot_charge .ne. 0) '
                   'setting gate = .TRUE. represents the counter charge (i.e. '
@@ -68,36 +74,41 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                   'could still use them for symmetric systems (i.e. no dipole '
                   'correction). For @ref nosym=.false. verbosity is set to '
                   '\'high\'. Note: this option was called "monopole" in v6.0 '
-                  'and 6.1 of pw.x }',
+                  'and 6.1 of pw.x',
           'input_type': 'select_multiple',
           'options': ['.FALSE.', '.TRUE.'],
-          'type': 'LOGICAL'},
+          'type': 'LOGICAL',
+          'description' : 'Gate.'},
  'gdir': {'info': ' For Berry phase calculation: direction of the k-point '
                   'strings in reciprocal space. Allowed values: 1, 2, 3 '
                   '1=first, 2=second, 3=third reciprocal lattice vector For '
                   'calculations with finite electric fields (@ref '
-                  'lelfield==.true.) "gdir" is the direction of the field. }',
+                  'lelfield==.true.) "gdir" is the direction of the field.',
           'input_type': 'select_multiple',
           'options' : ['1','2','3'],
-          'type': 'INTEGER'},
+          'type': 'INTEGER',
+          'description' : 'Propagation direction.'},
  'iprint': {'default': 'write only at convergence',
             'info': " When @ref calculation == 'md' (molecular dynamics) "
-                    'trajectory is written every @i iprint md steps. }',
-            'type': 'INTEGER'},
+                    'trajectory is written every @i iprint md steps.',
+            'type': 'INTEGER',
+            'description' : 'Print level.'},
  'lberry': {'default': '.FALSE.',
             'info': ' If .TRUE. perform a Berry phase calculation. See the '
-                    'header of PW/src/bp_c_phase.f90 for documentation. }',
+                    'header of PW/src/bp_c_phase.f90 for documentation.',
             'input_type': 'select_multiple',
             'options': ['.FALSE.', '.TRUE.'],
-            'type': 'LOGICAL'},
+            'type': 'LOGICAL',
+            'description' : 'Berry phase calculation.'},
  'lelfield': {'default': '.FALSE.',
               'info': ' If .TRUE. a homogeneous finite electric field '
                       'described through the modern theory of the polarization '
                       'is applied. This is different from @ref tefield == '
-                      '.true. ! }',
+                      '.true. ! ',
               'input_type': 'select_multiple',
               'options': ['.FALSE.', '.TRUE.'],
-              'type': 'LOGICAL'},
+              'type': 'LOGICAL',
+              'description' : 'Electric field calculation.'},
  'lfcp': {'default': '.FALSE.',
           'info': ' If .TRUE. perform a constant bias potential (constant-mu) '
                   'calculation for a system with ESM method. See the header of '
@@ -109,14 +120,16 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                   "'bc2' or 'bc3' must be set in @ref SYSTEM namelist. - "
                   "ESM-RISM is also supported (@ref assume_isolated = 'esm' "
                   "and @ref esm_bc = 'bc1' and @ref trism = .TRUE.). - @ref "
-                  'ignore_wolfe is always .TRUE., for BFGS. }',
+                  'ignore_wolfe is always .TRUE., for BFGS. ',
           'input_type': 'select_multiple',
           'options': ['.FALSE.', '.TRUE.'],
-          'type': 'LOGICAL'},
- 'lkpoint_dir': {'info': ' OBSOLETE - NO LONGER IMPLEMENTED }',
+          'type': 'LOGICAL',
+          'description' : 'Linear response calculation.'},
+ 'lkpoint_dir': {'info': ' OBSOLETE - NO LONGER IMPLEMENTED ',
                  'input_type': 'select_multiple',
                  'options': ['.FALSE.', '.TRUE.'],
-                 'type': 'LOGICAL'},
+                 'type': 'LOGICAL',
+                 'description' : 'K-point direction.'},
  'lorbm': {'default': '.FALSE.',
            'info': ' If @b .TRUE. perform orbital magnetization calculation. '
                    'If finite electric field is applied (@ref '
@@ -125,65 +138,76 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                    'doi:10.1088/1367-2630/12/5/053032].  The type of '
                    "calculation is @b 'nscf' and should be performed on an "
                    'automatically generated uniform grid of k points.  Works '
-                   'ONLY with norm-conserving pseudopotentials. }',
+                   'ONLY with norm-conserving pseudopotentials. ',
            'input_type': 'select_multiple',
            'options': ['.FALSE.', '.TRUE.'],
-           'type': 'LOGICAL'},
+           'type': 'LOGICAL',
+           'description' : 'Orbital magnetic moment calculation.'},
  'max_seconds': {'default': '1.D+7, or 150 days, i.e. no time limit',
                  'info': ' Jobs stops after @ref max_seconds CPU time. Use '
                          'this option in conjunction with option @ref '
                          'restart_mode if you need to split a job too long to '
                          'complete into shorter jobs that fit into your batch '
-                         'queues. }',
-                 'type': 'REAL'},
+                         'queues. ',
+                 'type': 'REAL',
+                 'description' : 'Maximum seconds.'},
  'nberrycyc': {'default': '1',
                'info': ' In the case of a finite electric field  ( @ref '
                        'lelfield == .TRUE. ) it defines the number of '
                        'iterations for converging the wavefunctions in the '
                        'electric field Hamiltonian, for each external '
-                       'iteration on the charge density }',
-               'type': 'INTEGER'},
+                       'iteration on the charge density ',
+               'type': 'INTEGER',
+               'description' : 'Berry phase cycles.'},
  'nppstr': {'info': ' For Berry phase calculation: number of k-points to be '
                     'calculated along each symmetry-reduced string. The same '
                     'for calculation with finite electric fields (@ref '
-                    'lelfield==.true.). }',
-            'type': 'INTEGER'},
+                    'lelfield==.true.). ',
+            'type': 'INTEGER',
+            'description' : 'Post-processing steps.'},
  'nstep': {'info': ' number of molecular-dynamics or structural optimization '
                    'steps performed in this run. If set to 0, the code '
                    'performs a quick "dry run", stopping just after '
                    'initialization. This is useful to check for input '
                    'correctness and to have the summary printed. NOTE: in MD '
                    'calculations, the code will perform "nstep" steps even if '
-                   'restarting from a previously interrupted calculation. }',
-           'type': 'INTEGER'},
+                   'restarting from a previously interrupted calculation. ',
+           'type': 'INTEGER',
+           'description' : 'Time steps.'},
  'outdir': {'info': ' input, temporary, output files are found in this '
-                    'directory, see also @ref wfcdir }',
-            'type': 'CHARACTER'},
+                    'directory, see also @ref wfcdir ',
+            'type': 'CHARACTER',
+            'description' : 'Output directory.'},
  'prefix': {'default': 'pwscf',
             'info': ' prepended to input/output filenames: prefix.wfc, '
-                    'prefix.rho, etc. }',
-            'type': 'CHARACTER'},
- 'pseudo_dir': {'info': ' directory containing pseudopotential files }',
-                'type': 'CHARACTER'},
+                    'prefix.rho, etc. ',
+            'type': 'CHARACTER',
+            'description' : 'File prefix.'},
+ 'pseudo_dir': {'info': ' directory containing pseudopotential files ',
+                'type': 'CHARACTER',
+                'description' : 'Pseudopotential directory.'},
  'restart_mode': {'default': 'from_scratch',
                   'info': '',
                   'input_type': 'select_multiple',
                   'options': ['from_scratch', 'restart'],
-                  'type': 'CHARACTER'},
+                  'type': 'CHARACTER',
+                  'description' : 'Restart mode.'},
  'tefield': {'default': '.FALSE.',
              'info': ' If .TRUE. a saw-like potential simulating an electric '
                      'field is added to the bare ionic potential. See '
                      'variables @ref edir, @ref eamp, @ref emaxpos, @ref '
-                     'eopreg for the form and size of the added potential.  }',
+                     'eopreg for the form and size of the added potential.  ',
              'input_type': 'select_multiple',
              'options': ['.FALSE.', '.TRUE.'],
-             'type': 'LOGICAL'},
- 'title': {'info': ' reprinted on output. }', 'type': 'CHARACTER'},
+             'type': 'LOGICAL',
+             'description' : 'Electric field.'},
+ 'title': {'info': ' reprinted on output. ', 'type': 'CHARACTER', 'description' : 'Simulation title.'},
  'tprnfor': {'info': ' calculate forces. It is set to .TRUE. automatically if '
                      "@ref calculation == 'relax','md','vc-md' }",
              'input_type': 'select_multiple',
              'options': ['.FALSE.', '.TRUE.'],
-             'type': 'LOGICAL'},
+             'type': 'LOGICAL',
+             'description' : 'Forces print.'},
  'trism': {'default': '.FALSE.',
            'info': ' If .TRUE. perform a 3D-RISM-SCF calculation [for details '
                    'see H.Sato et al., JCP 112, 9463 (2000), '
@@ -198,16 +222,18 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                    'see S.Nishihara and M.Otani, PRB 96, 115429 (2017)].  The '
                    'default of @ref mixing_beta is 0.2 for both 3D-RISM and '
                    'Laue-RISM.  For structural relaxation with BFGS, @ref '
-                   'ignore_wolfe is always .TRUE. . }',
+                   'ignore_wolfe is always .TRUE. . ',
            'input_type': 'select_multiple',
            'options': ['.FALSE.', '.TRUE.'],
-           'type': 'LOGICAL'},
+           'type': 'LOGICAL',
+           'description' : 'Tracing image.'},
  'tstress': {'default': '.false.',
              'info': ' calculate stress. It is set to .TRUE. automatically if '
                      "@ref calculation == 'vc-md' or 'vc-relax' }",
              'input_type': 'select_multiple',
              'options': ['.FALSE.', '.TRUE.'],
-             'type': 'LOGICAL'},
+             'type': 'LOGICAL',
+             'description' : 'Stress tensor.'},
  'twochem': {'default': '.FALSE.',
              'info': ' IF .TRUE. , a two chemical potential calculation for '
                      'the simulation of photoexcited systems is performed, '
@@ -217,19 +243,23 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                      "be set to 'smearing'. }",
              'input_type': 'select_multiple',
              'options': ['.FALSE.', '.TRUE.'],
-             'type': 'LOGICAL'},
+             'type': 'LOGICAL',
+             'description' : 'Two-chemical-potential.'},
  'verbosity': {'default': 'low',
                'info': ' Currently two verbosity levels are implemented: } @b '
                        "'debug' and @b 'medium' have the same effect as @b "
                        "'high'; @b 'default' and @b 'minimal' as @b 'low' }",
                'input_type': 'select_multiple',
                'options': ['high', 'low'],
-               'type': 'CHARACTER'},
+               'type': 'CHARACTER',
+               'description' : 'Output verbosity.'},
  'wf_collect': {'info': '',
                 'input_type': 'select_multiple',
                 'options': ['.FALSE.', '.TRUE.'],
-                'type': 'LOGICAL'},
+                'type': 'LOGICAL',
+                'description' : 'Wavefunction collection.'},
  'wfcdir': {'default': 'same as @ref outdir',
             'info': ' This directory specifies where to store files generated '
                     'by each processor (*.wfc{N}, *.igk{N}, etc.). Useful for',
-            'type': 'CHARACTER'}}
+            'type': 'CHARACTER',
+            'description' : 'Wavefunction directory.'}}
