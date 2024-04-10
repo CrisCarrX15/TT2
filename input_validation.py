@@ -10,7 +10,7 @@ def validate_all_entries(in_parameters):
     error_message = ''
     error_message += validate_required_fields(in_parameters, {'CONTROL' : CONTROL_DICT, 'SYSTEM' : SYSTEM_DICT})
     error_message += validate_types(in_parameters, {'CONTROL' : CONTROL_DICT, 'SYSTEM' : SYSTEM_DICT})
-    error_message +=validate_rules(in_parameters)
+    #error_message +=validate_rules(in_parameters)
 
     return error_message
 
@@ -69,7 +69,7 @@ def is_logical(string):
     else:
         return False
 
-
+'''
 # ===================================================================
 # ======================= VALIDATION OF RULES =======================
 # ===================================================================
@@ -90,3 +90,4 @@ def control_validation(control):
     
     
     return
+'''

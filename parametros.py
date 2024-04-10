@@ -98,18 +98,18 @@ class ParametrosWindow(QMainWindow):
     def create_widgets(self, control_dict, layout, tab_index):
         widget_dict = {}
         for key, config in control_dict.items():
-            full_text = f"{key}: {config.get('info', 'No information available')}"
-            if len(full_text) > 50:
-                label = QLabel(full_text[:50] + "...")
-                button = QPushButton("Ver más")
-                button.setStyleSheet("background-color: #CCCCCC;")  # Cambiar color a gris
-                button.setMaximumWidth(100)  # Establecer el ancho máximo del botón
-                self.connect_button_clicked(button, full_text)  # Conecta el botón al hacer clic
-                layout.addWidget(label)
-                layout.addWidget(button)
-            else:
-                label = QLabel(full_text)
-                layout.addWidget(label)
+            description_text = f"{key}: {config.get('description', 'No description available')} ({config.get('type', 'Any type')})"
+            label = QLabel(description_text)
+            layout.addWidget(label)
+
+            full_info = config.get('info', 'No information available')
+            
+            button = QPushButton("More")
+            button.setStyleSheet("background-color: #CCCCCC;")  # Cambiar color a gris
+            button.setMaximumWidth(100)  # Establecer el ancho máximo del botón
+            self.connect_button_clicked(button, full_info, key)  # Conecta el botón al hacer clic
+            layout.addWidget(button)
+            
 
             input_type = config.get('input_type', None)
 
@@ -130,19 +130,19 @@ class ParametrosWindow(QMainWindow):
         button_layout.setSpacing(10)
         layout.addLayout(button_layout)
 
-        save_button = QPushButton("Guardar")
+        save_button = QPushButton("Save")
         save_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(save_button)
 
-        cancel_button = QPushButton("Cancelar")
+        cancel_button = QPushButton("Cancel")
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
 
         save_button.clicked.connect(self.guardar_informacion)
 
-    def show_full_text(self, text):
+    def show_full_text(self, text, parameter):
         dialog = QDialog(self)
-        dialog.setWindowTitle("Texto completo")
+        dialog.setWindowTitle(parameter)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.setMinimumWidth(400)  # Establecer el ancho mínimo del diálogo
 
@@ -154,7 +154,7 @@ class ParametrosWindow(QMainWindow):
         text_edit.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
         layout.addWidget(text_edit)
 
-        close_button = QPushButton("Cerrar")
+        close_button = QPushButton("Close")
         close_button.clicked.connect(dialog.close)
         layout.addWidget(close_button)
 
@@ -194,9 +194,9 @@ class ParametrosWindow(QMainWindow):
             info[key] = value
         return info
 
-    def connect_button_clicked(self, button, text):
+    def connect_button_clicked(self, button, text, parameter):
         def on_button_clicked():
-            self.show_full_text(text)
+            self.show_full_text(text, parameter)
         button.clicked.connect(on_button_clicked)
 
 

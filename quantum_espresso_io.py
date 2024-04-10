@@ -93,7 +93,7 @@ def sum_ecut(filename, number_to_add):
 
 
 def create_in_file(parameters):
-    filename = 'prueba.in'
+    filename = 'test_in_file.in'
     with open(filename, 'w') as f:
         for section, params in parameters.items():
             f.write(f"&{section}\n")
@@ -102,5 +102,5 @@ def create_in_file(parameters):
                     if is_real_number(value) or is_integer(value):
                         f.write(f"\t{param} = {value}\n")
                     else:
-                        f.write(f"\t{param} = '{value}'\n")
+                        f.write(f"\t{param} = \'{value}\'\n")
             f.write("\\\n\n")
