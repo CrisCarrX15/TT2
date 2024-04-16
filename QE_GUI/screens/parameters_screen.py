@@ -13,17 +13,22 @@
 ###################################################
 
 
+# Get the parent directory (main)
+#parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Add parent directory to sys.path
+#sys.path.append(parent_dir)
+
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog
 from PySide2.QtGui import QColor, QFont
 from functools import partial
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QTextEdit
-from control_dict import CONTROL_DICT
-from system_dict import SYSTEM_DICT
-from quantum_espresso_io import create_in_file
+from parameters.control_dict import CONTROL_DICT
+from parameters.system_dict import SYSTEM_DICT
+from file_operations.quantum_espresso_io import create_in_file
 
-class AppStyle:
+class AppParametersStyle:
     @staticmethod
     def apply(window):
         window.setMinimumSize(800, 600)
@@ -50,12 +55,13 @@ class AppStyle:
         window.setStyleSheet(window.styleSheet() + button_style)
 
 
-class ParametrosWindow(QMainWindow):
-    def __init__(self, control_dict, system_dict):
+class ParametersWIndow(QMainWindow):
+    def __init__(self, project_name):
         super().__init__()
-        self.control_dict = control_dict
-        self.system_dict = system_dict
-        self.setWindowTitle("Parametros")
+        self.control_dict = CONTROL_DICT
+        self.system_dict = SYSTEM_DICT
+        self.project_name = project_name
+        self.setWindowTitle(f'Proyect: {project_name}')
         self.widget_dict = {}
         self.tab_widget_dict_widgets = {}
         self.tab_control_name = 'CONTROL'
@@ -170,7 +176,7 @@ class ParametrosWindow(QMainWindow):
         info_dict['CONTROL'] = control_info
         info_dict['SYSTEM'] = system_info
 
-        create_in_file(info_dict)
+        create_in_file(self.project_name,info_dict)
     
         print("Información de Control Dict:")
         for key, value in control_info.items():
@@ -199,11 +205,16 @@ class ParametrosWindow(QMainWindow):
             self.show_full_text(text, parameter)
         button.clicked.connect(on_button_clicked)
 
+def run_parameters(project_name):
+    parametros_window = ParametersWIndow(project_name)
+    AppParametersStyle.apply(parametros_window)
+    parametros_window.show()
 
+"""
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    parametros_window = ParametrosWindow(CONTROL_DICT, SYSTEM_DICT)
+    parametros_window = ParametersWIndow(CONTROL_DICT, SYSTEM_DICT)
     AppStyle.apply(parametros_window)
     parametros_window.show()
     sys.exit(app.exec_())
-
+"""

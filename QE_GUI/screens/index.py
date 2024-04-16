@@ -6,7 +6,7 @@ from PySide2.QtGui import QPixmap, QColor
 from PySide2.QtCore import Qt, Signal, QObject, QThread
 
 import subprocess
-import quantum_espresso_io as qe_io
+import file_operations.quantum_espresso_io as qe_io
 
 class QeWorker(QObject):
     message_signal = Signal(str)

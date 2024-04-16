@@ -1,7 +1,7 @@
 import re
 import os
-from control_dict import CONTROL_DICT
-from system_dict import SYSTEM_DICT
+from parameters.control_dict import CONTROL_DICT
+from parameters.system_dict import SYSTEM_DICT
 
 ##### NOTA: AL INICIAR LA GUI POR PRIMERA VEZ DEBEMOS PREGUNTAR DONDE ESTA GUARDADA LA CARPETA DE qe-7.3
 

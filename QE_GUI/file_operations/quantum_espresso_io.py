@@ -12,7 +12,7 @@
 ##                                               ##
 ###################################################
 
-from input_validation import is_real_number, is_integer
+from file_operations.input_validation import is_real_number, is_integer
 
 def find_total_energy(filename):
     # Read the input file
@@ -92,8 +92,8 @@ def sum_ecut(filename, number_to_add):
         modified_file.writelines(lines)
 
 
-def create_in_file(parameters):
-    filename = 'test_in_file.in'
+def create_in_file(filename, parameters):
+    filename = f'{filename}.in'
     with open(filename, 'w') as f:
         for section, params in parameters.items():
             f.write(f"&{section}\n")
