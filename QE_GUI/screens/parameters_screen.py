@@ -13,11 +13,6 @@
 ###################################################
 
 
-# Get the parent directory (main)
-#parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# Add parent directory to sys.path
-#sys.path.append(parent_dir)
-
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog
 from PySide2.QtGui import QColor, QFont
@@ -27,6 +22,7 @@ from PySide2.QtWidgets import QTextEdit
 from parameters.control_dict import CONTROL_DICT
 from parameters.system_dict import SYSTEM_DICT
 from file_operations.quantum_espresso_io import create_in_file
+from file_operations.project import save_data, load_data
 
 class AppParametersStyle:
     @staticmethod
@@ -56,11 +52,12 @@ class AppParametersStyle:
 
 
 class ParametersWIndow(QMainWindow):
-    def __init__(self, project_name):
+    def __init__(self, project_name, file_path, load_qg_project):
         super().__init__()
         self.control_dict = CONTROL_DICT
         self.system_dict = SYSTEM_DICT
         self.project_name = project_name
+        self.file_path = file_path
         self.setWindowTitle(f'Proyect: {project_name}')
         self.widget_dict = {}
         self.tab_widget_dict_widgets = {}
@@ -83,6 +80,13 @@ class ParametersWIndow(QMainWindow):
         central_layout.addWidget(self.tab_widget)
 
         self.setCentralWidget(central_widget)
+
+        if load_qg_project:
+            # Load data from .qg file and update graphical interface
+            #data = load_data("/home/marco/TT2/QE_GUI/graphene.qg")
+            data = load_data(f'{file_path}/{self.project_name}.qg')
+            self.load_data_into_interface(data)
+
 
     def setup_tab(self, tab, control_dict, tab_index):
         scroll_area = QScrollArea()
@@ -136,15 +140,19 @@ class ParametersWIndow(QMainWindow):
         button_layout.setSpacing(10)
         layout.addLayout(button_layout)
 
-        save_button = QPushButton("Save")
-        save_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        button_layout.addWidget(save_button)
+        save_project_button = QPushButton(f'Save {self.project_name} project')
+        save_project_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        save_project_button.clicked.connect(self.save_project)
+        button_layout.addWidget(save_project_button)
+
+        save_in_button = QPushButton(f'Save {self.project_name}.in file')
+        save_in_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        save_in_button.clicked.connect(self.create_in)
+        button_layout.addWidget(save_in_button)
 
         cancel_button = QPushButton("Cancel")
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
-
-        save_button.clicked.connect(self.guardar_informacion)
 
     def show_full_text(self, text, parameter):
         dialog = QDialog(self)
@@ -167,8 +175,17 @@ class ParametersWIndow(QMainWindow):
         dialog.setLayout(layout)
         dialog.exec_()
 
+    def save_project(self):
+        control_info = self.get_tab_info(self.tab_control_name)
+        system_info = self.get_tab_info(self.tab_system_name)
 
-    def guardar_informacion(self):
+        info_dict = {}
+        info_dict['CONTROL'] = control_info
+        info_dict['SYSTEM'] = system_info
+
+        save_data(self.file_path, self.project_name, info_dict)
+
+    def create_in(self):
         control_info = self.get_tab_info(self.tab_control_name)
         system_info = self.get_tab_info(self.tab_system_name)
 
@@ -204,11 +221,31 @@ class ParametersWIndow(QMainWindow):
         def on_button_clicked():
             self.show_full_text(text, parameter)
         button.clicked.connect(on_button_clicked)
+    
 
-def run_parameters(project_name):
-    parametros_window = ParametersWIndow(project_name)
-    AppParametersStyle.apply(parametros_window)
-    parametros_window.show()
+    def load_data_into_interface(self, data):
+        for section, parameters in data.items():
+            widget_dict = self.tab_widget_dict_widgets.get(section)
+            if widget_dict:
+                for parameter, value in parameters.items():
+                    for label, widget in widget_dict.items():
+                        # Obtener el texto de la etiqueta del widget y eliminar cualquier texto adicional
+                        label_text = label.text().split(':')[0].strip()
+                        if label_text == parameter:
+                            if isinstance(widget, QComboBox):
+                                index = widget.findText(value)
+                                if index != -1:
+                                    widget.setCurrentIndex(index)
+                            elif isinstance(widget, QLineEdit):
+                                widget.setText(value)
+
+
+
+def run_parameters(project_name, file_path, load_qg_project):
+    parameters_window = ParametersWIndow(project_name, file_path, load_qg_project)
+    AppParametersStyle.apply(parameters_window)
+    parameters_window.show()
+
 
 """
 if __name__ == "__main__":

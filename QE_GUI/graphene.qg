@@ -1,0 +1,1 @@
+<graphene><CONTROL><calculation>bands</calculation><dipfield>.TRUE.</dipfield><lorbm>.TRUE.</lorbm><verbosity>high</verbosity></CONTROL><SYSTEM><ace>.TRUE.</ace><lforcet>.TRUE.</lforcet><nspin>4.09</nspin><pol_type>e</pol_type><sic_energy>.FALSE.</sic_energy><uniqueb>.FALSE.</uniqueb></SYSTEM></graphene>
