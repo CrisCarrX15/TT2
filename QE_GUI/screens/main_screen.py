@@ -152,7 +152,7 @@ class WelcomeWindow(QMainWindow):
         buttons_layout.addWidget(nuevo_calculo_button)
 
         proyect_button = QLabel(self)
-        proyect_button.setPixmap(QPixmap('./screens/images/proyect.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        proyect_button.setPixmap(QPixmap('./screens/images/project.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         proyect_button.mousePressEvent = self.show_create_open_window
         buttons_layout.addWidget(proyect_button)
 
@@ -194,3 +194,4 @@ def run_main():
 
 if __name__ == '__main__':
     run_main()
+
