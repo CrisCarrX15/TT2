@@ -12,8 +12,6 @@
 ##                                               ##
 ###################################################
 
-
-import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog
 from PySide2.QtGui import QColor, QFont
 from functools import partial
@@ -21,6 +19,8 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QTextEdit
 from parameters.control_dict import CONTROL_DICT
 from parameters.system_dict import SYSTEM_DICT
+from parameters.electrons_dict import ELECTRONS_DICT
+from parameters.ions_dict import IONS_DICT
 from file_operations.quantum_espresso_io import create_in_file
 from file_operations.project import save_data, load_data
 
@@ -51,30 +51,40 @@ class AppParametersStyle:
         window.setStyleSheet(window.styleSheet() + button_style)
 
 
-class ParametersWIndow(QMainWindow):
+class ParametersWindow(QMainWindow):
     def __init__(self, project_name, file_path, load_qg_project):
         super().__init__()
         self.control_dict = CONTROL_DICT
         self.system_dict = SYSTEM_DICT
+        self.electrons_dict = ELECTRONS_DICT
+        self.ions_dict = IONS_DICT  
         self.project_name = project_name
         self.file_path = file_path
-        self.setWindowTitle(f'Proyect: {project_name}')
+        self.setWindowTitle(f'Project: {project_name}')
         self.widget_dict = {}
         self.tab_widget_dict_widgets = {}
         self.tab_control_name = 'CONTROL'
         self.tab_system_name = 'SYSTEM'
+        self.tab_electrons_name = 'ELECTRONS'  
+        self.tab_ions_name ='IONS'
 
         central_widget = QWidget()
 
         self.tab_widget = QTabWidget()
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.tab3 = QWidget()  
+        self.tab4 = QWidget()
 
         self.tab_widget.addTab(self.tab1, self.tab_control_name)
         self.tab_widget.addTab(self.tab2, self.tab_system_name)
+        self.tab_widget.addTab(self.tab3, self.tab_electrons_name)  
+        self.tab_widget.addTab(self.tab4, self.tab_ions_name)
 
         self.setup_tab(self.tab1, self.control_dict, self.tab_control_name)
         self.setup_tab(self.tab2, self.system_dict, self.tab_system_name)
+        self.setup_tab(self.tab3, self.electrons_dict, self.tab_electrons_name)  
+        self.setup_tab(self.tab4, self.ions_dict, self.tab_ions_name)
 
         central_layout = QVBoxLayout(central_widget)
         central_layout.addWidget(self.tab_widget)
@@ -82,8 +92,6 @@ class ParametersWIndow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         if load_qg_project:
-            # Load data from .qg file and update graphical interface
-            #data = load_data("/home/marco/TT2/QE_GUI/graphene.qg")
             data = load_data(f'{file_path}/{self.project_name}.qg')
             self.load_data_into_interface(data)
 
@@ -178,20 +186,28 @@ class ParametersWIndow(QMainWindow):
     def save_project(self):
         control_info = self.get_tab_info(self.tab_control_name)
         system_info = self.get_tab_info(self.tab_system_name)
+        electrons_info = self.get_tab_info(self.tab_electrons_name)
+        ions_info = self.get_tab_info(self.tab_ions_name)
 
         info_dict = {}
         info_dict['CONTROL'] = control_info
         info_dict['SYSTEM'] = system_info
+        info_dict['ELECTRONS'] = electrons_info
+        info_dict['IONS'] = ions_info
 
         save_data(self.file_path, self.project_name, info_dict)
 
     def create_in(self):
         control_info = self.get_tab_info(self.tab_control_name)
         system_info = self.get_tab_info(self.tab_system_name)
+        electrons_info = self.get_tab_info(self.tab_electrons_name)
+        ions_info = self.get_tab_info(self.tab_ions_name)
 
         info_dict = {}
         info_dict['CONTROL'] = control_info
         info_dict['SYSTEM'] = system_info
+        info_dict['ELECTRONS'] = electrons_info
+        info_dict['IONS'] = ions_info
 
         create_in_file(self.project_name,info_dict)
     
@@ -202,6 +218,15 @@ class ParametersWIndow(QMainWindow):
         print("\nInformación de System Dict:")
         for key, value in system_info.items():
             print(f"{key}: {value}")
+        
+        print("\nInformación de Electrons Dict:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
+
+        print("\nInformación de Ions Dict:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
+    
 
     def get_tab_info(self, tab_index):
         info = {}
@@ -242,11 +267,9 @@ class ParametersWIndow(QMainWindow):
 
 
 def run_parameters(project_name, file_path, load_qg_project):
-    parameters_window = ParametersWIndow(project_name, file_path, load_qg_project)
+    parameters_window = ParametersWindow(project_name, file_path, load_qg_project)
     AppParametersStyle.apply(parameters_window)
     parameters_window.show()
-
-
 """
 if __name__ == "__main__":
     app = QApplication(sys.argv)
