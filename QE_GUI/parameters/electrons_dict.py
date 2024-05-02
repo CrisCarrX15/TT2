@@ -97,9 +97,21 @@ ELECTRONS_DICT = {'adaptive_thr': {'default': '.FALSE',
                     'type': 'REAL'},
  'diagonalization': {'default': 'david',
                      'description': 'Diagonalization algorithm',
-                     'info': '',
+                     'info': 'Available options are:'
+                        '\'david\' : Davidson iterative diagonalization with overlap matrix'
+                        '(default). Fast, may in some rare cases fail.'
+                        '\'cg\' : Conjugate-gradient-like band-by-band diagonalization.' 
+                        'MUCH slower than \'david\' but uses less memory and is (a little bit) more robust.'
+                        '\'ppcg\' : PPCG iterative diagonalization'
+                        '\'paro\', \'ParO\' : ParO iterative diagonalization'
+                        '\'rmm-davidson\', \'rmm-paro\' : RMM-DIIS iterative diagonalization.'
+                        'To stabilize the SCF loop'
+                        'RMM-DIIS is alternated with calls to Davidson or'
+                        'ParO  solvers depending on the string used.'
+                        'Other variables that can be used to tune the behavior of'
+                        'RMM-DIIS are:  diago_rmm_ndim and diago_rmm_conv',
                      'input_type': 'select_multiple',
-                     'options': ['david', 'cg'],
+                     'options': ['david', 'cg','ppcg','paro','ParO','rmm-davidson','rmm-paro'],
                      'type': 'CHARACTER'},
  'efield': {'default': '0.D0',
             'description': 'Electric field amplitude',

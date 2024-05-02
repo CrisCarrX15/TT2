@@ -53,9 +53,15 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                      'type': 'LOGICAL'},
  'dftd3_version': {'default': '3',
                    'description': 'DFT-D3 version',
-                   'info': ' Version of Grimme implementation of Grimme-D3: } '
-                           'NOTE: not all functionals are parametrized. }',
-                   'type': 'integer'},
+                   'info': 'Version of Grimme implementation of Grimme-D3:'
+                        'dftd3_version = 2 : Original Grimme-D2 parametrization'
+                        'dftd3_version = 3 : Grimme-D3 (zero damping)'
+                        'dftd3_version = 4 : Grimme-D3 (BJ damping)'
+                        'dftd3_version = 5 : Grimme-D3M (zero damping)'
+                        'dftd3_version = 6 : Grimme-D3M (BJ damping)',
+                   'input_type': 'select_multiple',
+                   'options': ['2', '3', '4', '5', '6'],
+                   'type': 'INTEGER'},
  'dmft': {'default': '.FALSE.',
           'description': 'Dynamical mean field theory',
           'info': ' If true, nscf calculation will exit in restart mode, scf '
@@ -135,6 +141,8 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                   'the potential is constant in planes defined by FFT grid '
                   'points; @ref edir = 1, 2 or 3. Used only if @ref tefield is '
                   '.TRUE. }',
+          'input_type': 'select_multiple',
+          'options': ['1', '2', '3'],
           'type': 'INTEGER'},
  'emaxpos': {'default': '0.5D0',
              'description': 'Maximum positions',
@@ -498,6 +506,42 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                'input_type': 'select_multiple',
                'options': ['.FALSE.', '.TRUE.'],
                'type': 'LOGICAL'},
+ 'nqx1' : { 'description' : 'Number of grid points for charge density in the first reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for q (k1-k2) sampling of '
+                'the Fock operator (EXX). Can be smaller than '
+                'the number of k-points.'
+                'Currently this defaults to the size of the k-point mesh used.'
+                'In QE =< 5.0.2 it defaulted to nqx1=nqx2=nqx3=1.',
+             'type' : 'INTEGER'},
+ 'nqx2' : { 'description' : 'Number of grid points for charge density in the second reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for q (k1-k2) sampling of '
+                'the Fock operator (EXX). Can be smaller than '
+                'the number of k-points.'
+                'Currently this defaults to the size of the k-point mesh used.'
+                'In QE =< 5.0.2 it defaulted to nqx1=nqx2=nqx3=1.',
+             'type' : 'INTEGER'},
+ 'nqx3' : { 'description' : 'Number of grid points for charge density in the third reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for q (k1-k2) sampling of '
+                'the Fock operator (EXX). Can be smaller than '
+                'the number of k-points.'
+                'Currently this defaults to the size of the k-point mesh used.'
+                'In QE =< 5.0.2 it defaulted to nqx1=nqx2=nqx3=1.',
+             'type' : 'INTEGER'},
+ 'nr1s' : { 'description' : 'Number of grid points in the first reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for wavefunction FFT and for the smooth'
+                'part of charge density ( smooth grid ).'
+                'Coincides with @ref nr1, @ref nr2, @ref nr3 if @ref ecutrho = 4 * ecutwfc',
+             'type' : 'INTEGER'},
+ 'nr2s' : { 'description' : 'Number of grid points in the first reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for wavefunction FFT and for the smooth'
+                'part of charge density ( smooth grid ).'
+                'Coincides with @ref nr1, @ref nr2, @ref nr3 if @ref ecutrho = 4 * ecutwfc',
+             'type' : 'INTEGER'},
+ 'nr3s' : { 'description' : 'Number of grid points in the first reciprocal lattice vector',
+             'info' : 'Three-dimensional mesh for wavefunction FFT and for the smooth'
+                'part of charge density ( smooth grid ).'
+                'Coincides with @ref nr1, @ref nr2, @ref nr3 if @ref ecutrho = 4 * ecutwfc',
+             'type' : 'INTEGER'},
  'nspin': {'default': '1',
            'description': 'Spin polarized calculation',
            'info': ' nspin = 1 :  non-polarized calculation (default)  nspin = '
@@ -505,7 +549,9 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                    'z axis)  nspin = 4 :  spin-polarized calculation, '
                    'noncollinear (magnetization in generic direction) DO NOT '
                    'specify @ref nspin in this case; specify @ref '
-                   'noncolin=.TRUE. instead }',
+                   'noncolin=.TRUE. instead }','input_type': 'select_multiple',
+           'input_type': 'select_multiple',
+           'options' : ['1','2','4'],
            'type': 'INTEGER'},
  'ntyp': {'description': 'Number of atom types',
           'info': ' number of types of atoms in the unit cell }',
@@ -556,10 +602,12 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                           'type': 'LOGICAL'},
  'origin_choice': {'default': '1',
                    'description': 'Origin choice',
-                   'info': ' Used only for space groups that in the ITA allow '
+                   'info': 'Used only for space groups that in the ITA allow '
                            'the use of two different origins. @ref '
                            'origin_choice=1, means the first origin, while '
                            '@ref origin_choice=2 is the second origin. }',
+                   'input_type': 'select_multiple',
+                   'options': ['1', '2'],
                    'type': 'INTEGER'},
  'pol_type': {'description': 'Polarization type',
               'info': ' Type of polaron in gammaDFT. }',
@@ -737,7 +785,16 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                   'type': 'LOGICAL'},
  'vdw_corr': {'default': 'none',
               'description': 'Van der Waals correction',
-              'info': ' Type of Van der Waals correction. Allowed values: }',
+              'info': '\'grimme-d2\', \'Grimme-D2\', \'DFT-D\', \'dft-d\' : Semiempirical Grimme\'s DFT-D2.'
+                        '\'grimme-d3\', \'Grimme-D3\', \'DFT-D3\', \'dft-d3\' : Semiempirical Grimme\'s DFT-D3.'
+                        '\'TS\', \'ts\', \'ts-vdw\', \'ts-vdW\', \'tkatchenko-scheffler\' : Tkatchenko-Scheffler dispersion corrections with first-principle derived C6 coefficients.'
+                        '\'MBD\', \'mbd\', \'many-body-dispersion\', \'mbd_vdw\' : Many-body dipersion (MBD) correction to long-range interactions.'
+                        '\'XDM\', \'xdm\' : Exchange-hole dipole-moment model.',
+              'input_type': 'select_multiple',
+              'options': ['grimme-d2', 'Grimme-D2', 'DFT-D','dft-d','grimme-d3', 
+                          'Grimme-D3', 'DFT-D3','dft-d3', 'TS','ts','ts-vdw', 
+                          'ts-vdW','tkatchenko-scheffler','MBD', 'mbd', 
+                          'many-body-dispersion', 'mbd_vdw','XDM', 'xdm'],
               'type': 'CHARACTER'},
  'x_gamma_extrapolation': {'description': 'Extrapolation in Gamma',
                            'info': ' Specific for EXX. If .true., extrapolate '
@@ -747,15 +804,9 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                            'input_type': 'select_multiple',
                            'options': ['.FALSE.', '.TRUE.'],
                            'type': 'LOGICAL'},
- 'xdm': {'default': '.FALSE.',
-         'description': 'Dispersion corrections',
-         'input_type': 'select_multiple',
-         'options': ['.FALSE.', '.TRUE.'],
-         'status': " OBSOLESCENT, same as @ref vdw_corr='xdm' }",
-         'type': 'LOGICAL'},
  'xdm_a1': {'default': '0.6836',
             'description': 'Exchange dispersion correction parameter',
-            'info': ' Damping function parameter a1 (adimensional). It is NOT '
+            'info': 'Damping function parameter a1 (adimensional). It is NOT '
                     'necessary to give a value if the functional is one of '
                     'B86bPBE, PW86PBE, PBE, BLYP. For functionals in this '
                     'list, the coefficients are given in: '
@@ -772,4 +823,55 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                     'http://schooner.chem.dal.ca/wiki/XDM A. Otero de la Roza, '
                     'E. R. Johnson, J. Chem. Phys. 138, 204109 (2013), '
                     'doi:10.1063/1.4705760 }',
-            'type': 'REAL'}}
+            'type': 'REAL'},
+ 'zgate' : {'default' : '0.5',
+            'description' : 'Z-gate parameter',
+            'info' : 'used only if @ref gate = .TRUE.'
+                    'Specifies the position of the charged plate which represents'
+                    'the counter charge in doped systems (@ref tot_charge .ne. 0).'
+                    'In units of the unit cell length in @i z direction, @ref zgate in ]0,1['
+                    'Details of the gate potential can be found in'
+                    'T. Brumme, M. Calandra, F. Mauri; PRB 89, 245406 (2014).',
+            'type' : 'REAL'},
+ 'relaxz' : {'default' : '.FALSE.',
+            'description' : 'Relaxation of the z coordinate',
+            'input_type': 'select_multiple',
+            'options': ['.FALSE.', '.TRUE.'],
+            'info' : 'used only if @ref gate = .TRUE.'
+                    'Allows the relaxation of the system towards the charged plate.'
+                    'Use carefully and utilize either a layer of fixed atoms or a'
+                    'potential barrier (@ref block=.TRUE.) to avoid the atoms moving to'
+                    'the position of the plate or the dipole of the dipole'
+                    'correction (@ref dipfield=.TRUE.).',
+            'type' : 'LOGICAL'},
+ 'block' : {'default' : '.FALSE.',
+            'description' : 'Block parameter',
+            'input_type': 'select_multiple',
+            'options': ['.FALSE.', '.TRUE.'],
+            'info' : 'used only if @ref gate = .TRUE.'
+                    'Adds a potential barrier to the total potential seen by the'
+                    'electrons to mimic a dielectric in field effect configuration'
+                    'and/or to avoid electrons spilling into the vacuum region for'
+                    'electron dopediring. Potential barrier is from @ref block_1 to @ref block_2 and'
+                    'has a height of block_height.'
+                    'If @ref dipfield = .TRUE. then @ref eopreg is used for a smooth increase and'
+                    'decrease of the potential barrier.',
+            'type' : 'LOGICAL'},
+ 'block_1' : {'default' : '0.45',
+            'description' : 'Block parameter 1',
+            'info' : 'used only if @ref gate = .TRUE. and @ref block = .TRUE.'
+                    'lower beginning of the potential barrier, in units of the'
+                    'unit cell size along @i z, @ref block_1 in ]0,1[',
+            'type' : 'REAL'},
+ 'block_2' : {'default' : '0.55',
+            'description' : 'Block parameter 2',
+            'info' : 'used only if @ref gate = .TRUE. and @ref block = .TRUE.'
+                    'upper beginning of the potential barrier, in units of the'
+                    'unit cell size along @i z, @ref block_2 in ]0,1[',
+            'type' : 'REAL'},
+ 'block_height' : {'default' : '0.1',
+            'description' : 'Block height parameter',
+            'info' : 'used only if @ref gate = .TRUE. and @ref block = .TRUE.'
+                    'Height of the potential barrier in Rydberg.',
+            'type' : 'REAL'}
+}
