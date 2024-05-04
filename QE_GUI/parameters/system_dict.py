@@ -551,7 +551,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                    'z axis)  nspin = 4 :  spin-polarized calculation, '
                    'noncollinear (magnetization in generic direction) DO NOT '
                    'specify @ref nspin in this case; specify @ref '
-                   'noncolin=.TRUE. instead }','input_type': 'select_multiple',
+                   'noncolin=.TRUE. instead }',
            'input_type': 'select_multiple',
            'options' : ['1','2','4'],
            'type': 'INTEGER'},
