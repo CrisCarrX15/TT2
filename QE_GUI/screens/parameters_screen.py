@@ -12,7 +12,7 @@
 ##                                               ##
 ###################################################
 
-from PySide2.QtWidgets import QApplication, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog
+from PySide2.QtWidgets import QHBoxLayout, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog,QGridLayout
 from PySide2.QtGui import QColor, QFont
 from functools import partial
 from PySide2.QtCore import Qt
@@ -21,6 +21,9 @@ from parameters.control_dict import CONTROL_DICT
 from parameters.system_dict import SYSTEM_DICT
 from parameters.electrons_dict import ELECTRONS_DICT
 from parameters.ions_dict import IONS_DICT
+from parameters.atomic_dict import INPUT_DATA
+from parameters.config_dict import CONFIG_DICT
+from parameters.rism_dict import RISM_DICT
 from file_operations.quantum_espresso_io import create_in_file
 from file_operations.project import save_data, load_data
 
@@ -57,7 +60,10 @@ class ParametersWindow(QMainWindow):
         self.control_dict = CONTROL_DICT
         self.system_dict = SYSTEM_DICT
         self.electrons_dict = ELECTRONS_DICT
-        self.ions_dict = IONS_DICT  
+        self.ions_dict = IONS_DICT 
+        self.rism_dict = RISM_DICT
+        self.atomic_dict = INPUT_DATA
+        self.config_dict = CONFIG_DICT
         self.project_name = project_name
         self.file_path = file_path
         self.setWindowTitle(f'Project: {project_name}')
@@ -67,6 +73,9 @@ class ParametersWindow(QMainWindow):
         self.tab_system_name = 'SYSTEM'
         self.tab_electrons_name = 'ELECTRONS'  
         self.tab_ions_name ='IONS'
+        self.tab_rism_name = 'RISM'
+        self.tab_input_name = 'ATOMIC & K_POINTS'
+        self.tab_config_name = 'SETTINGS'
 
         central_widget = QWidget()
 
@@ -75,16 +84,26 @@ class ParametersWindow(QMainWindow):
         self.tab2 = QWidget()
         self.tab3 = QWidget()  
         self.tab4 = QWidget()
+        self.tab5 = QWidget()
+        self.tab6 = QWidget()
+        self.tab7 = QWidget()
 
         self.tab_widget.addTab(self.tab1, self.tab_control_name)
         self.tab_widget.addTab(self.tab2, self.tab_system_name)
         self.tab_widget.addTab(self.tab3, self.tab_electrons_name)  
         self.tab_widget.addTab(self.tab4, self.tab_ions_name)
+        self.tab_widget.addTab(self.tab5, self.tab_rism_name)
+        self.tab_widget.addTab(self.tab6, self.tab_input_name)
+        self.tab_widget.addTab(self.tab7, self.tab_config_name)
+
 
         self.setup_tab(self.tab1, self.control_dict, self.tab_control_name)
         self.setup_tab(self.tab2, self.system_dict, self.tab_system_name)
         self.setup_tab(self.tab3, self.electrons_dict, self.tab_electrons_name)  
         self.setup_tab(self.tab4, self.ions_dict, self.tab_ions_name)
+        self.setup_tab(self.tab5, self.rism_dict, self.tab_rism_name)
+        self.setup_tab(self.tab6, self.atomic_dict, self.tab_input_name)
+        self.setup_tab(self.tab7, self.config_dict, self.tab_config_name)
 
         central_layout = QVBoxLayout(central_widget)
         central_layout.addWidget(self.tab_widget)
@@ -112,6 +131,16 @@ class ParametersWindow(QMainWindow):
         tab_layout = QVBoxLayout(tab)
         tab_layout.addWidget(scroll_area)
 
+    def add_additional_table(self, widget_dict, layout):  # Agregamos "self" aquí
+        additional_table_layout = QGridLayout()
+        for i in range(2):
+            for j in range(3):
+                text_edit = QLineEdit()
+                additional_table_layout.addWidget(text_edit, i, j)
+                widget_dict[f"additional_table_{i}_{j}"] = text_edit
+        additional_table_widget = QWidget()
+        additional_table_widget.setLayout(additional_table_layout)
+        layout.addWidget(additional_table_widget)
 
     def create_widgets(self, control_dict, layout, tab_index):
         widget_dict = {}
@@ -121,22 +150,52 @@ class ParametersWindow(QMainWindow):
             layout.addWidget(label)
 
             full_info = config.get('info', 'No information available')
-            
+        
             button = QPushButton("More")
             button.setStyleSheet("background-color: #CCCCCC;")  # Cambiar color a gris
             button.setMaximumWidth(100)  # Establecer el ancho máximo del botón
             self.connect_button_clicked(button, full_info, key)  # Conecta el botón al hacer clic
             layout.addWidget(button)
-            
+        
 
             input_type = config.get('input_type', None)
 
-            if input_type is not None and input_type == 'select_multiple':
+            if input_type is None:
+                text_edit = QLineEdit()
+                layout.addWidget(text_edit)
+                widget_dict[label] = text_edit
+            elif input_type == 'select_multiple':
                 combobox = QComboBox()
                 combobox.setFont(QFont("Arial", 12))
                 combobox.addItems([''] + config['options'])
                 layout.addWidget(combobox)
                 widget_dict[label] = combobox
+            elif input_type == 'matrix':
+                matrix_layout = QGridLayout()
+                for i in range(2):
+                    for j in range(3):
+                        text_edit = QLineEdit()
+                        matrix_layout.addWidget(text_edit, i, j)
+                        widget_dict[f"{label}_{i}_{j}"] = text_edit
+                matrix_widget = QWidget()
+                matrix_widget.setLayout(matrix_layout)
+                layout.addWidget(matrix_widget)
+            elif input_type == 'text':
+                text_layout = QVBoxLayout()  # Cada conjunto de campos de texto tiene su propio layout
+                text_matrix_layout = QHBoxLayout()
+                for i in range(3):
+                    text_edit = QLineEdit()
+                    text_matrix_layout.addWidget(text_edit)
+                    widget_dict[f"{label}_{i}"] = text_edit
+                text_layout.addLayout(text_matrix_layout)
+
+                add_table_button = QPushButton("Agregar tabla adicional")
+                add_table_button.clicked.connect(lambda: self.add_additional_table(widget_dict, text_layout))  # Conectar a text_layout en lugar de layout
+                text_layout.addWidget(add_table_button)
+
+                widget = QWidget()
+                widget.setLayout(text_layout)
+                layout.addWidget(widget)
             else:
                 text_edit = QLineEdit()
                 layout.addWidget(text_edit)
@@ -162,6 +221,7 @@ class ParametersWindow(QMainWindow):
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
 
+    
     def show_full_text(self, text, parameter):
         dialog = QDialog(self)
         dialog.setWindowTitle(parameter)
@@ -188,12 +248,23 @@ class ParametersWindow(QMainWindow):
         system_info = self.get_tab_info(self.tab_system_name)
         electrons_info = self.get_tab_info(self.tab_electrons_name)
         ions_info = self.get_tab_info(self.tab_ions_name)
+        rism_info = self.get_tab_info(self.tab_rism_name)
+        input_info = self.get_tab_info(self.tab_input_name)
+        input_info2 = self.get_tab_info(self.tab_input_name)
+        input_info3 = self.get_tab_info(self.tab_input_name)
+        config_info = self.get_tab_info(self.tab_config_name)
+
 
         info_dict = {}
         info_dict['CONTROL'] = control_info
         info_dict['SYSTEM'] = system_info
         info_dict['ELECTRONS'] = electrons_info
         info_dict['IONS'] = ions_info
+        info_dict['RISM'] = rism_info
+        info_dict['ATOMIC_SPECIES']= input_info
+        info_dict['ATOMIC_POSISITIONS']= input_info2
+        info_dict['K_POINTS']= input_info3
+        info_dict['SETTINGS'] = config_info
 
         save_data(self.file_path, self.project_name, info_dict)
 
@@ -202,12 +273,22 @@ class ParametersWindow(QMainWindow):
         system_info = self.get_tab_info(self.tab_system_name)
         electrons_info = self.get_tab_info(self.tab_electrons_name)
         ions_info = self.get_tab_info(self.tab_ions_name)
+        rism_info = self.get_tab_info(self.tab_rism_name)
+        input_info = self.get_tab_info(self.tab_input_name)
+        input_info2 = self.get_tab_info(self.tab_input_name)
+        input_info3 = self.get_tab_info(self.tab_input_name)
+        control_info = self.get_tab_info(self.tab_config_name)
 
         info_dict = {}
         info_dict['CONTROL'] = control_info
         info_dict['SYSTEM'] = system_info
         info_dict['ELECTRONS'] = electrons_info
         info_dict['IONS'] = ions_info
+        info_dict['RISM'] = rism_info
+        info_dict['ATOMIC_SPECIES'] = input_info
+        info_dict['ATOMIC_POSITIONS'] = input_info2
+        info_dict['K_POINTS'] = input_info3
+        info_dict['SETTINGS'] = control_info
 
         create_in_file(self.project_name,info_dict)
     
@@ -226,8 +307,20 @@ class ParametersWindow(QMainWindow):
         print("\nInformación de Ions Dict:")
         for key, value in system_info.items():
             print(f"{key}: {value}")
-    
+        
+        print("\nInformación de Rims Dict:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
 
+        print("\nInformación de Input Data:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
+        
+        print("\nInformación de Config Dict:")
+        for key, value in system_info.items():
+            print(f"{key}: {value}")
+        
+    
     def get_tab_info(self, tab_index):
         info = {}
         widget_dict = self.tab_widget_dict_widgets.get(tab_index, {})
