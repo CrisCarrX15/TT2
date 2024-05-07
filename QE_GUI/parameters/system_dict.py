@@ -173,7 +173,7 @@ SYSTEM_DICT = {'ace': {'default': 'true',
                     'decreases. ( see below, 0 < eopreg < 1 ). Used only if '
                     '@ref tefield is .TRUE. }',
             'type': 'REAL'},
- 'esm_bc': {'default': 'pbc',
+ 'esm_bc': {'default': 'bc1',
             'description': 'ESM boundary conditions',
             'info': " If @ref assume_isolated = 'esm', determines the boundary "
                     'conditions used for either side of the slab.  Currently '

@@ -131,16 +131,78 @@ class ParametersWindow(QMainWindow):
         tab_layout = QVBoxLayout(tab)
         tab_layout.addWidget(scroll_area)
 
-    def add_additional_table(self, widget_dict, layout):  # Agregamos "self" aquí
-        additional_table_layout = QGridLayout()
-        for i in range(2):
-            for j in range(3):
-                text_edit = QLineEdit()
-                additional_table_layout.addWidget(text_edit, i, j)
-                widget_dict[f"additional_table_{i}_{j}"] = text_edit
-        additional_table_widget = QWidget()
-        additional_table_widget.setLayout(additional_table_layout)
-        layout.addWidget(additional_table_widget)
+# ==================== NUEVO =========================
+    def create_widgets_atomic_species(self, config, layout):
+        widget_dict = {}
+
+        text_layout = QVBoxLayout() 
+        text_matrix_layout = QHBoxLayout()
+
+        for i in range(3):  # Crear 1x3 entradas de texto para atomic_species
+            text_edit = QLineEdit()
+            text_matrix_layout.addWidget(text_edit)
+            widget_dict[f"atomic_species_{i}_0"] = text_edit
+
+        text_layout.addLayout(text_matrix_layout)
+
+        add_table_button = QPushButton("Add row")
+        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_species(widget_dict, text_layout))
+        text_layout.addWidget(add_table_button)
+
+        widget = QWidget()
+        widget.setLayout(text_layout)
+        layout.addWidget(widget)
+
+    def add_additional_table_atomic_species(self, widget_dict, text_layout):
+        # Obtener el número actual de filas
+        current_rows = text_layout.count() - 1  # Excluyendo el botón "Agregar fila"
+
+        # Crear una nueva fila de entradas de texto
+        text_matrix_layout = QHBoxLayout()
+        for i in range(3):  # 3 columnas para atomic_species
+            text_edit = QLineEdit()
+            text_matrix_layout.addWidget(text_edit)
+            widget_dict[f"atomic_species_{i}_{current_rows}"] = text_edit
+
+        # Agregar la nueva fila al layout
+        text_layout.insertLayout(current_rows, text_matrix_layout)
+
+    def create_widgets_atomic_positions(self, config, layout):
+        widget_dict = {}
+
+        text_layout = QVBoxLayout() 
+        text_matrix_layout = QHBoxLayout()
+
+        for i in range(4):  # Crear 1x4 entradas de texto para atomic_positions
+            text_edit = QLineEdit()
+            text_matrix_layout.addWidget(text_edit)
+            widget_dict[f"atomic_species_{i}_0"] = text_edit
+
+        text_layout.addLayout(text_matrix_layout)
+
+        add_table_button = QPushButton("Add row")
+        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_positions(widget_dict, text_layout))
+        text_layout.addWidget(add_table_button)
+
+        widget = QWidget()
+        widget.setLayout(text_layout)
+        layout.addWidget(widget)
+
+    def add_additional_table_atomic_positions(self, widget_dict, text_layout):
+        # Obtener el número actual de filas
+        current_rows = text_layout.count() - 1  # Excluyendo el botón "Agregar fila"
+
+        # Crear una nueva fila de entradas de texto
+        text_matrix_layout = QHBoxLayout()
+        for i in range(4):  # 4 columnas para atomic_positions
+            text_edit = QLineEdit()
+            text_matrix_layout.addWidget(text_edit)
+            widget_dict[f"atomic_species_{i}_{current_rows}"] = text_edit
+
+        # Agregar la nueva fila al layout
+        text_layout.insertLayout(current_rows, text_matrix_layout)
+
+# ==================== NUEVO =========================
 
     def create_widgets(self, control_dict, layout, tab_index):
         widget_dict = {}
@@ -180,22 +242,10 @@ class ParametersWindow(QMainWindow):
                 matrix_widget = QWidget()
                 matrix_widget.setLayout(matrix_layout)
                 layout.addWidget(matrix_widget)
-            elif input_type == 'text':
-                text_layout = QVBoxLayout()  # Cada conjunto de campos de texto tiene su propio layout
-                text_matrix_layout = QHBoxLayout()
-                for i in range(3):
-                    text_edit = QLineEdit()
-                    text_matrix_layout.addWidget(text_edit)
-                    widget_dict[f"{label}_{i}"] = text_edit
-                text_layout.addLayout(text_matrix_layout)
-
-                add_table_button = QPushButton("Agregar tabla adicional")
-                add_table_button.clicked.connect(lambda: self.add_additional_table(widget_dict, text_layout))  # Conectar a text_layout en lugar de layout
-                text_layout.addWidget(add_table_button)
-
-                widget = QWidget()
-                widget.setLayout(text_layout)
-                layout.addWidget(widget)
+            if input_type == 'atomic_species':
+                self.create_widgets_atomic_species(config, layout)
+            elif input_type == 'atomic_positions':
+                self.create_widgets_atomic_positions(config, layout)
             else:
                 text_edit = QLineEdit()
                 layout.addWidget(text_edit)

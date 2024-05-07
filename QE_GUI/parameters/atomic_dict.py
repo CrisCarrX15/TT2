@@ -1,6 +1,7 @@
 INPUT_DATA = {
     'ATOMIC_SPECIES': {
-        'input_type': 'text',
+        'description' : 'Specifies the atomic species and their pseudopotentials',
+        'input_type': 'atomic_species',
         'data': {
             'X': {'mass': 'Mass_X', 'pseudo_potential': 'PseudoPot_X'},
             'Y': {'mass': 'Mass_Y', 'pseudo_potential': 'PseudoPot_Y'},
@@ -8,7 +9,8 @@ INPUT_DATA = {
         }
     },
     'ATOMIC_POSITIONS': {
-        'input_type': 'text',
+        'description' : 'Specifies the atomic positions in Cartesian or crystal coordinates',
+        'input_type': 'atomic_positions',
         'data': {
             'units': 'angstrom',
             'atoms': [
@@ -19,6 +21,7 @@ INPUT_DATA = {
         }
     },
     'K_POINTS': {
+        'description' : 'Specifies the k-points sampling method for Brillouin zone integration',
         'input_type': 'matrix',
         'data': {
             'type': 'manual',
