@@ -77,6 +77,9 @@ class ParametersWindow(QMainWindow):
         self.tab_input_name = 'ATOMIC & K_POINTS'
         self.tab_config_name = 'SETTINGS'
 
+        self.atomic_positions_counter = 0
+        self.atomic_species_counter = 0
+
         central_widget = QWidget()
 
         self.tab_widget = QTabWidget()
@@ -132,8 +135,9 @@ class ParametersWindow(QMainWindow):
         tab_layout.addWidget(scroll_area)
 
 # ==================== NUEVO =========================
+    # ============== CREATE THE WIDGET FOR ATOMIC SPECIES ===============
     def create_widgets_atomic_species(self, config, layout):
-        widget_dict = {}
+        widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
 
         text_layout = QVBoxLayout() 
         text_matrix_layout = QHBoxLayout()
@@ -141,19 +145,24 @@ class ParametersWindow(QMainWindow):
         for i in range(3):  # Crear 1x3 entradas de texto para atomic_species
             text_edit = QLineEdit()
             text_matrix_layout.addWidget(text_edit)
-            widget_dict[f"atomic_species_{i}_0"] = text_edit
+            identifier = f"atomic_species_0_{i}"
+            widget_dict[identifier] = text_edit
 
         text_layout.addLayout(text_matrix_layout)
 
         add_table_button = QPushButton("Add row")
-        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_species(widget_dict, text_layout))
+        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_species(text_layout))
         text_layout.addWidget(add_table_button)
 
         widget = QWidget()
         widget.setLayout(text_layout)
         layout.addWidget(widget)
 
-    def add_additional_table_atomic_species(self, widget_dict, text_layout):
+        return widget_dict
+
+    # =========== ADD NEW ROW OF ENTRIES FOR ATOMIC SPECIES =============
+    def add_additional_table_atomic_species(self, text_layout):
+        widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
         # Obtener el número actual de filas
         current_rows = text_layout.count() - 1  # Excluyendo el botón "Agregar fila"
 
@@ -162,13 +171,19 @@ class ParametersWindow(QMainWindow):
         for i in range(3):  # 3 columnas para atomic_species
             text_edit = QLineEdit()
             text_matrix_layout.addWidget(text_edit)
-            widget_dict[f"atomic_species_{i}_{current_rows}"] = text_edit
+            # Construir el identificador único en el formato requerido
+            identifier = f"atomic_species_{current_rows}_{i}"
+            widget_dict[identifier] = text_edit
 
         # Agregar la nueva fila al layout
         text_layout.insertLayout(current_rows, text_matrix_layout)
 
+        # Actualizar el diccionario de widgets de la pestaña actual
+        self.tab_widget_dict_widgets[self.tab_input_name] = widget_dict
+
+    # ============== CREATE THE WIDGET FOR ATOMIC POSITIONS ===============
     def create_widgets_atomic_positions(self, config, layout):
-        widget_dict = {}
+        widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
 
         text_layout = QVBoxLayout() 
         text_matrix_layout = QHBoxLayout()
@@ -176,19 +191,24 @@ class ParametersWindow(QMainWindow):
         for i in range(4):  # Crear 1x4 entradas de texto para atomic_positions
             text_edit = QLineEdit()
             text_matrix_layout.addWidget(text_edit)
-            widget_dict[f"atomic_species_{i}_0"] = text_edit
+            identifier = f"atomic_positions_0_{i}"
+            widget_dict[identifier] = text_edit
 
         text_layout.addLayout(text_matrix_layout)
 
         add_table_button = QPushButton("Add row")
-        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_positions(widget_dict, text_layout))
+        add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_positions(text_layout))
         text_layout.addWidget(add_table_button)
 
         widget = QWidget()
         widget.setLayout(text_layout)
         layout.addWidget(widget)
 
-    def add_additional_table_atomic_positions(self, widget_dict, text_layout):
+        return widget_dict
+
+    # =========== ADD NEW ROW OF ENTRIES FOR ATOMIC POSITIONS =============
+    def add_additional_table_atomic_positions(self, text_layout):
+        widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
         # Obtener el número actual de filas
         current_rows = text_layout.count() - 1  # Excluyendo el botón "Agregar fila"
 
@@ -197,10 +217,15 @@ class ParametersWindow(QMainWindow):
         for i in range(4):  # 4 columnas para atomic_positions
             text_edit = QLineEdit()
             text_matrix_layout.addWidget(text_edit)
-            widget_dict[f"atomic_species_{i}_{current_rows}"] = text_edit
+            # Construir el identificador único en el formato requerido
+            identifier = f"atomic_positions_{current_rows}_{i}"
+            widget_dict[identifier] = text_edit
 
         # Agregar la nueva fila al layout
         text_layout.insertLayout(current_rows, text_matrix_layout)
+
+        # Actualizar el diccionario de widgets de la pestaña actual
+        self.tab_widget_dict_widgets[self.tab_input_name] = widget_dict
 
 # ==================== NUEVO =========================
 
@@ -225,31 +250,31 @@ class ParametersWindow(QMainWindow):
             if input_type is None:
                 text_edit = QLineEdit()
                 layout.addWidget(text_edit)
-                widget_dict[label] = text_edit
+                widget_dict[key] = text_edit
             elif input_type == 'select_multiple':
                 combobox = QComboBox()
                 combobox.setFont(QFont("Arial", 12))
                 combobox.addItems([''] + config['options'])
                 layout.addWidget(combobox)
-                widget_dict[label] = combobox
+                widget_dict[key] = combobox
             elif input_type == 'matrix':
                 matrix_layout = QGridLayout()
                 for i in range(2):
                     for j in range(3):
                         text_edit = QLineEdit()
                         matrix_layout.addWidget(text_edit, i, j)
-                        widget_dict[f"{label}_{i}_{j}"] = text_edit
+                        widget_dict[f'{key}_{i}_{j}'] = text_edit
                 matrix_widget = QWidget()
                 matrix_widget.setLayout(matrix_layout)
                 layout.addWidget(matrix_widget)
-            if input_type == 'atomic_species':
-                self.create_widgets_atomic_species(config, layout)
+            elif input_type == 'atomic_species':
+                widget_dict.update(self.create_widgets_atomic_species(config, layout))
             elif input_type == 'atomic_positions':
-                self.create_widgets_atomic_positions(config, layout)
+                widget_dict.update(self.create_widgets_atomic_positions(config, layout))
             else:
                 text_edit = QLineEdit()
                 layout.addWidget(text_edit)
-                widget_dict[label] = text_edit
+                widget_dict[key] = text_edit
 
         self.tab_widget_dict_widgets[tab_index] = widget_dict
 
@@ -325,9 +350,7 @@ class ParametersWindow(QMainWindow):
         ions_info = self.get_tab_info(self.tab_ions_name)
         rism_info = self.get_tab_info(self.tab_rism_name)
         input_info = self.get_tab_info(self.tab_input_name)
-        input_info2 = self.get_tab_info(self.tab_input_name)
-        input_info3 = self.get_tab_info(self.tab_input_name)
-        control_info = self.get_tab_info(self.tab_config_name)
+        config_info = self.get_tab_info(self.tab_config_name)
 
         info_dict = {}
         info_dict['CONTROL'] = control_info
@@ -335,12 +358,10 @@ class ParametersWindow(QMainWindow):
         info_dict['ELECTRONS'] = electrons_info
         info_dict['IONS'] = ions_info
         info_dict['RISM'] = rism_info
-        info_dict['ATOMIC_SPECIES'] = input_info
-        info_dict['ATOMIC_POSITIONS'] = input_info2
-        info_dict['K_POINTS'] = input_info3
-        info_dict['SETTINGS'] = control_info
+        info_dict['ATOMIC'] = input_info
+        info_dict['SETTINGS'] = config_info
 
-        create_in_file(self.project_name,info_dict)
+        #create_in_file(self.file_path, self.project_name,info_dict)
     
         print("Información de Control Dict:")
         for key, value in control_info.items():
@@ -351,23 +372,23 @@ class ParametersWindow(QMainWindow):
             print(f"{key}: {value}")
         
         print("\nInformación de Electrons Dict:")
-        for key, value in system_info.items():
+        for key, value in electrons_info.items():
             print(f"{key}: {value}")
 
         print("\nInformación de Ions Dict:")
-        for key, value in system_info.items():
+        for key, value in ions_info.items():
             print(f"{key}: {value}")
         
         print("\nInformación de Rims Dict:")
-        for key, value in system_info.items():
+        for key, value in rism_info.items():
             print(f"{key}: {value}")
 
         print("\nInformación de Input Data:")
-        for key, value in system_info.items():
+        for key, value in input_info.items():
             print(f"{key}: {value}")
         
         print("\nInformación de Config Dict:")
-        for key, value in system_info.items():
+        for key, value in config_info.items():
             print(f"{key}: {value}")
         
     
@@ -381,7 +402,9 @@ class ParametersWindow(QMainWindow):
                 value = widget.text()
             else:
                 value = None
-            key = label.text().split(':')[0]
+
+            #key = label.text().split(':')[0].strip()
+            key = label
             info[key] = value
         return info
 
@@ -398,7 +421,8 @@ class ParametersWindow(QMainWindow):
                 for parameter, value in parameters.items():
                     for label, widget in widget_dict.items():
                         # Obtener el texto de la etiqueta del widget y eliminar cualquier texto adicional
-                        label_text = label.text().split(':')[0].strip()
+                        #label_text = label.text().split(':')[0].strip()
+                        label_text = label
                         if label_text == parameter:
                             if isinstance(widget, QComboBox):
                                 index = widget.findText(value)

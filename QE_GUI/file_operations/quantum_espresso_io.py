@@ -92,8 +92,8 @@ def sum_ecut(filename, number_to_add):
         modified_file.writelines(lines)
 
 
-def create_in_file(filename, parameters):
-    filename = f'{filename}.in'
+def create_in_file(file_path, filename, parameters):
+    filename = f'{file_path}/{filename}.in'
     with open(filename, 'w') as f:
         for section, params in parameters.items():
             f.write(f"&{section}\n")
