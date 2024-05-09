@@ -26,6 +26,7 @@ from parameters.config_dict import CONFIG_DICT
 from parameters.rism_dict import RISM_DICT
 from file_operations.quantum_espresso_io import create_in_file
 from file_operations.project import save_data, load_data
+from file_operations.run_quantum_espresso import RunQuantumEspresso
 
 class AppParametersStyle:
     @staticmethod
@@ -292,6 +293,11 @@ class ParametersWindow(QMainWindow):
         save_in_button.clicked.connect(self.create_in)
         button_layout.addWidget(save_in_button)
 
+        run_qe_button = QPushButton(f'Run {self.project_name}.in file')
+        run_qe_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        run_qe_button.clicked.connect(self.run_qe)
+        button_layout.addWidget(run_qe_button)
+
         cancel_button = QPushButton("Cancel")
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
@@ -361,7 +367,7 @@ class ParametersWindow(QMainWindow):
         info_dict['ATOMIC'] = input_info
         info_dict['SETTINGS'] = config_info
 
-        #create_in_file(self.file_path, self.project_name,info_dict)
+        create_in_file(self.file_path, self.project_name,info_dict)
     
         print("Información de Control Dict:")
         for key, value in control_info.items():
@@ -391,7 +397,11 @@ class ParametersWindow(QMainWindow):
         for key, value in config_info.items():
             print(f"{key}: {value}")
         
+    def run_qe(self):
+        run = RunQuantumEspresso()
+        run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
     
+
     def get_tab_info(self, tab_index):
         info = {}
         widget_dict = self.tab_widget_dict_widgets.get(tab_index, {})

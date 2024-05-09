@@ -96,11 +96,53 @@ def create_in_file(file_path, filename, parameters):
     filename = f'{file_path}/{filename}.in'
     with open(filename, 'w') as f:
         for section, params in parameters.items():
-            f.write(f"&{section}\n")
-            for param, value in params.items():
-                if value != '' and value is not None:
-                    if is_real_number(value) or is_integer(value):
-                        f.write(f"\t{param} = {value}\n")
-                    else:
-                        f.write(f"\t{param} = \'{value}\'\n")
-            f.write("\\\n\n")
+            if section == 'ATOMIC':
+
+                max_row_atomic_species = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_species'))
+                max_col_atomic_species = max(int(param.split('_')[3]) for param in params if param.startswith('atomic_species'))
+
+                max_row_atomic_positions = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_positions'))
+                max_col_atomic_positions = max(int(param.split('_')[3]) for param in params if param.startswith('atomic_positions'))
+
+                max_row_k_points = max(int(param.split('_')[2]) for param in params if param.startswith('K_POINTS'))
+                max_col_k_points = max(int(param.split('_')[3]) for param in params if param.startswith('K_POINTS'))
+
+                # Escribir los datos de ATOMIC_SPECIES
+                f.write("ATOMIC_SPECIES\n")
+                for i in range(max_row_atomic_species+1):  # Iterar sobre las filas de ATOMIC_SPECIES
+                    f.write("  ")
+                    line_values = [params.get(f"atomic_species_{i}_{j}", "") for j in range(max_col_atomic_species+1)]  # Obtener los valores de la fila
+                    line_values = [value if value != "" else "0.0" for value in line_values]  # Reemplazar valores vacíos por "0.0"
+                    line = "  ".join(line_values)  # Crear la línea concatenando los valores
+                    f.write(line + "\n")  # Escribir la línea en el archivo
+                f.write("\n\n")
+
+                # Escribir los datos de ATOMIC_POSITIONS
+                f.write("ATOMIC_POSITIONS alat\n")
+                for i in range(max_row_atomic_positions+1):  # Iterar sobre las filas de ATOMIC_POSITIONS
+                    f.write("  ")
+                    line_values = [params.get(f"atomic_positions_{i}_{j}", "") for j in range(max_col_atomic_positions+1)]  # Obtener los valores de la fila
+                    line_values = [value if value != "" else "0.0" for value in line_values]  # Reemplazar valores vacíos por "0.0"
+                    line = "\t".join(line_values)  # Crear la línea concatenando los valores
+                    f.write(line + "\n")  # Escribir la línea en el archivo
+                f.write("\n\n")
+
+                # Escribir los datos de K_POINTS
+                f.write("K_POINTS automatic\n")
+                for i in range(max_row_k_points+1):  # Iterar sobre las filas de K_POINTS
+                    f.write("  ")
+                    line_values = [params.get(f"K_POINTS_{i}_{j}", "") for j in range(max_col_k_points+1)]  # Obtener los valores de la fila
+                    line_values = [value if value != "" else "0" for value in line_values]  # Reemplazar valores vacíos por "0"
+                    line = " ".join(line_values)  # Crear la línea concatenando los valores
+                    f.write(line + "   ")  # Escribir la línea en el archivo
+                f.write("\n\n")
+            else:
+                if any(value != '' and value is not None for value in params.values()):
+                    f.write(f"&{section}\n")
+                    for param, value in params.items():
+                        if value != '' and value is not None:
+                            if is_real_number(value) or is_integer(value):
+                                f.write(f"\t{param} = {value}\n")
+                            else:
+                                f.write(f"\t{param} = \'{value}\'\n")
+                    f.write("/\n\n")
