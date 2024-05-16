@@ -23,10 +23,26 @@ def load_data(file):
         for parameter in section:
             parameters[parameter.tag] = parameter.text
         data[section.tag] = parameters
-    #print('data:')
-    #print(data)
     return data
 
-#loaded_data = load_data_from_xml(xml_file)
 
-#print(loaded_data)
+# Find the number of rows created for atomic_species and atomic_positions
+def find_max_rows(file):
+    tree = ET.parse(file)
+    root = tree.getroot()
+    rows = {}
+
+    # Find the elements within ATOMIC_K_POINTS
+    atomic_k_points = root.find("ATOMIC_K_POINTS")
+    if atomic_k_points is not None:
+        for child in atomic_k_points:
+            # In the .qg file these values ​​are in the following format:
+            # <atomic_{species}/{positions}_{row}_{column}>
+            if child.tag.startswith("atomic_species") or child.tag.startswith("atomic_positions"):
+                key = 'atomic_' + str(child.tag.split('_')[1])
+                #print('Found ' + str(child.tag))
+                row_number = int(child.tag.split("_")[2])
+                if key not in rows or row_number+1 > rows.get(key, -1):
+                    rows[key] = row_number+1
+    print('rows', rows)
+    return rows

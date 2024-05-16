@@ -25,7 +25,7 @@ from parameters.atomic_dict import INPUT_DATA
 from parameters.config_dict import CONFIG_DICT
 from parameters.rism_dict import RISM_DICT
 from file_operations.quantum_espresso_io import create_in_file
-from file_operations.project import save_data, load_data
+from file_operations.project import save_data, load_data, find_max_rows
 from file_operations.run_quantum_espresso import RunQuantumEspresso
 
 class AppParametersStyle:
@@ -67,6 +67,7 @@ class ParametersWindow(QMainWindow):
         self.config_dict = CONFIG_DICT
         self.project_name = project_name
         self.file_path = file_path
+        self.load_project = load_qg_project
         self.setWindowTitle(f'Project: {project_name}')
         self.widget_dict = {}
         self.tab_widget_dict_widgets = {}
@@ -75,7 +76,7 @@ class ParametersWindow(QMainWindow):
         self.tab_electrons_name = 'ELECTRONS'  
         self.tab_ions_name ='IONS'
         self.tab_rism_name = 'RISM'
-        self.tab_input_name = 'ATOMIC & K_POINTS'
+        self.tab_input_name = 'ATOMIC_K_POINTS'
         self.tab_config_name = 'SETTINGS'
 
         self.atomic_positions_counter = 0
@@ -137,19 +138,20 @@ class ParametersWindow(QMainWindow):
 
 # ==================== NUEVO =========================
     # ============== CREATE THE WIDGET FOR ATOMIC SPECIES ===============
-    def create_widgets_atomic_species(self, config, layout):
+    def create_widgets_atomic_species(self, config, layout, rows):
         widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
 
-        text_layout = QVBoxLayout() 
-        text_matrix_layout = QHBoxLayout()
+        text_layout = QVBoxLayout() # Horizontal layout for each row of entries
 
-        for i in range(3):  # Crear 1x3 entradas de texto para atomic_species
-            text_edit = QLineEdit()
-            text_matrix_layout.addWidget(text_edit)
-            identifier = f"atomic_species_0_{i}"
-            widget_dict[identifier] = text_edit
-
-        text_layout.addLayout(text_matrix_layout)
+        for i in range(rows):
+            text_matrix_layout = QHBoxLayout()
+            for j in range(3):  # Create rowsx3 text entries for atomic_species
+                text_edit = QLineEdit()
+                identifier = f"atomic_species_{i}_{j}"
+                text_matrix_layout.addWidget(text_edit)
+                widget_dict[identifier] = text_edit
+        # ================================================================================= ARREGLAR QUE SE AGREGUE NUEVA FILA Y NO QUE SE AÑADA EN EL MISMO ESPACIO
+            text_layout.addLayout(text_matrix_layout)
 
         add_table_button = QPushButton("Add row")
         add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_species(text_layout))
@@ -183,19 +185,20 @@ class ParametersWindow(QMainWindow):
         self.tab_widget_dict_widgets[self.tab_input_name] = widget_dict
 
     # ============== CREATE THE WIDGET FOR ATOMIC POSITIONS ===============
-    def create_widgets_atomic_positions(self, config, layout):
+    def create_widgets_atomic_positions(self, config, layout, rows):
         widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
 
-        text_layout = QVBoxLayout() 
-        text_matrix_layout = QHBoxLayout()
+        text_layout = QVBoxLayout() # Horizontal layout for each row of entries
 
-        for i in range(4):  # Crear 1x4 entradas de texto para atomic_positions
-            text_edit = QLineEdit()
-            text_matrix_layout.addWidget(text_edit)
-            identifier = f"atomic_positions_0_{i}"
-            widget_dict[identifier] = text_edit
+        for i in range(rows):
+            text_matrix_layout = QHBoxLayout()
+            for j in range(4):  # Create rowsx4 text entries for atomic_positions
+                text_edit = QLineEdit()
+                identifier = f"atomic_positions_{i}_{j}"
+                text_matrix_layout.addWidget(text_edit)
+                widget_dict[identifier] = text_edit
 
-        text_layout.addLayout(text_matrix_layout)
+            text_layout.addLayout(text_matrix_layout)
 
         add_table_button = QPushButton("Add row")
         add_table_button.clicked.connect(lambda: self.add_additional_table_atomic_positions(text_layout))
@@ -232,6 +235,14 @@ class ParametersWindow(QMainWindow):
 
     def create_widgets(self, control_dict, layout, tab_index):
         widget_dict = {}
+        if self.load_project:
+            try:
+                atomic_rows = find_max_rows(f'{self.file_path}/{self.project_name}.qg')
+            except:
+                atomic_rows = {}
+        else:
+            atomic_rows = {}
+
         for key, config in control_dict.items():
             description_text = f"{key}: {config.get('description', 'No description available')} ({config.get('type', 'Any type')})"
             label = QLabel(description_text)
@@ -245,7 +256,6 @@ class ParametersWindow(QMainWindow):
             self.connect_button_clicked(button, full_info, key)  # Conecta el botón al hacer clic
             layout.addWidget(button)
         
-
             input_type = config.get('input_type', None)
 
             if input_type is None:
@@ -258,9 +268,18 @@ class ParametersWindow(QMainWindow):
                 combobox.addItems([''] + config['options'])
                 layout.addWidget(combobox)
                 widget_dict[key] = combobox
-            elif input_type == 'matrix':
+            elif input_type == 'k_points':
                 matrix_layout = QGridLayout()
-                for i in range(2):
+                for i in range(6):
+                    text_edit = QLineEdit()
+                    matrix_layout.addWidget(text_edit, 0, i)
+                    widget_dict[f'{key}_{i}'] = text_edit
+                matrix_widget = QWidget()
+                matrix_widget.setLayout(matrix_layout)
+                layout.addWidget(matrix_widget)
+            elif input_type == 'cell_parameters':
+                matrix_layout = QGridLayout()
+                for i in range(3):
                     for j in range(3):
                         text_edit = QLineEdit()
                         matrix_layout.addWidget(text_edit, i, j)
@@ -269,9 +288,9 @@ class ParametersWindow(QMainWindow):
                 matrix_widget.setLayout(matrix_layout)
                 layout.addWidget(matrix_widget)
             elif input_type == 'atomic_species':
-                widget_dict.update(self.create_widgets_atomic_species(config, layout))
+                widget_dict.update(self.create_widgets_atomic_species(config, layout, atomic_rows.get('atomic_species', 1)))
             elif input_type == 'atomic_positions':
-                widget_dict.update(self.create_widgets_atomic_positions(config, layout))
+                widget_dict.update(self.create_widgets_atomic_positions(config, layout, atomic_rows.get('atomic_positions', 1)))
             else:
                 text_edit = QLineEdit()
                 layout.addWidget(text_edit)
@@ -331,21 +350,17 @@ class ParametersWindow(QMainWindow):
         ions_info = self.get_tab_info(self.tab_ions_name)
         rism_info = self.get_tab_info(self.tab_rism_name)
         input_info = self.get_tab_info(self.tab_input_name)
-        input_info2 = self.get_tab_info(self.tab_input_name)
-        input_info3 = self.get_tab_info(self.tab_input_name)
         config_info = self.get_tab_info(self.tab_config_name)
 
 
         info_dict = {}
-        info_dict['CONTROL'] = control_info
-        info_dict['SYSTEM'] = system_info
-        info_dict['ELECTRONS'] = electrons_info
-        info_dict['IONS'] = ions_info
-        info_dict['RISM'] = rism_info
-        info_dict['ATOMIC_SPECIES']= input_info
-        info_dict['ATOMIC_POSISITIONS']= input_info2
-        info_dict['K_POINTS']= input_info3
-        info_dict['SETTINGS'] = config_info
+        info_dict[self.tab_control_name] = control_info
+        info_dict[self.tab_system_name] = system_info
+        info_dict[self.tab_electrons_name] = electrons_info
+        info_dict[self.tab_ions_name] = ions_info
+        info_dict[self.tab_rism_name] = rism_info
+        info_dict[self.tab_input_name] = input_info
+        info_dict[self.tab_config_name] = config_info
 
         save_data(self.file_path, self.project_name, info_dict)
 
@@ -359,13 +374,13 @@ class ParametersWindow(QMainWindow):
         config_info = self.get_tab_info(self.tab_config_name)
 
         info_dict = {}
-        info_dict['CONTROL'] = control_info
-        info_dict['SYSTEM'] = system_info
-        info_dict['ELECTRONS'] = electrons_info
-        info_dict['IONS'] = ions_info
-        info_dict['RISM'] = rism_info
-        info_dict['ATOMIC'] = input_info
-        info_dict['SETTINGS'] = config_info
+        info_dict[self.tab_control_name] = control_info
+        info_dict[self.tab_system_name] = system_info
+        info_dict[self.tab_electrons_name] = electrons_info
+        info_dict[self.tab_ions_name] = ions_info
+        info_dict[self.tab_rism_name] = rism_info
+        info_dict[self.tab_input_name] = input_info
+        info_dict[self.tab_config_name] = config_info
 
         create_in_file(self.file_path, self.project_name,info_dict)
     

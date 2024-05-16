@@ -96,46 +96,52 @@ def create_in_file(file_path, filename, parameters):
     filename = f'{file_path}/{filename}.in'
     with open(filename, 'w') as f:
         for section, params in parameters.items():
-            if section == 'ATOMIC':
+            if section == 'ATOMIC_K_POINTS':
 
-                max_row_atomic_species = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_species'))
-                max_col_atomic_species = max(int(param.split('_')[3]) for param in params if param.startswith('atomic_species'))
+                # Verificación para ATOMIC_SPECIES
+                write_atomic_species = any(param != '' for key, param in params.items() if key.startswith('atomic_species'))
 
-                max_row_atomic_positions = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_positions'))
-                max_col_atomic_positions = max(int(param.split('_')[3]) for param in params if param.startswith('atomic_positions'))
+                # Verificación para ATOMIC_POSITIONS
+                write_atomic_positions = any(param != '' for key, param in params.items() if key.startswith('atomic_positions'))
 
-                max_row_k_points = max(int(param.split('_')[2]) for param in params if param.startswith('K_POINTS'))
-                max_col_k_points = max(int(param.split('_')[3]) for param in params if param.startswith('K_POINTS'))
+                write_k_points = all(param == '' for param in params.values() if param.startswith('K_POINTS'))
 
-                # Escribir los datos de ATOMIC_SPECIES
-                f.write("ATOMIC_SPECIES\n")
-                for i in range(max_row_atomic_species+1):  # Iterar sobre las filas de ATOMIC_SPECIES
-                    f.write("  ")
-                    line_values = [params.get(f"atomic_species_{i}_{j}", "") for j in range(max_col_atomic_species+1)]  # Obtener los valores de la fila
-                    line_values = [value if value != "" else "0.0" for value in line_values]  # Reemplazar valores vacíos por "0.0"
-                    line = "  ".join(line_values)  # Crear la línea concatenando los valores
-                    f.write(line + "\n")  # Escribir la línea en el archivo
-                f.write("\n\n")
+                # Verificación para CELL_PARAMETERS
+                write_cell_parameters = any(param != '' for key, param in params.items() if key.startswith('CELL_PARAMETERS'))
 
-                # Escribir los datos de ATOMIC_POSITIONS
-                f.write("ATOMIC_POSITIONS alat\n")
-                for i in range(max_row_atomic_positions+1):  # Iterar sobre las filas de ATOMIC_POSITIONS
-                    f.write("  ")
-                    line_values = [params.get(f"atomic_positions_{i}_{j}", "") for j in range(max_col_atomic_positions+1)]  # Obtener los valores de la fila
-                    line_values = [value if value != "" else "0.0" for value in line_values]  # Reemplazar valores vacíos por "0.0"
-                    line = "\t".join(line_values)  # Crear la línea concatenando los valores
-                    f.write(line + "\n")  # Escribir la línea en el archivo
-                f.write("\n\n")
+                if write_atomic_species:
+                    max_row_atomic_species = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_species'))
+                    f.write("ATOMIC_SPECIES\n")
+                    for i in range(max_row_atomic_species + 1):
+                        f.write(f'    {params.get(f"atomic_species_{i}_0", "")}  {float(params.get(f"atomic_species_{i}_1", 0)):.4f}  {params.get(f"atomic_species_{i}_2", "")}\n')
+                    f.write("\n\n")
 
-                # Escribir los datos de K_POINTS
-                f.write("K_POINTS automatic\n")
-                for i in range(max_row_k_points+1):  # Iterar sobre las filas de K_POINTS
-                    f.write("  ")
-                    line_values = [params.get(f"K_POINTS_{i}_{j}", "") for j in range(max_col_k_points+1)]  # Obtener los valores de la fila
-                    line_values = [value if value != "" else "0" for value in line_values]  # Reemplazar valores vacíos por "0"
-                    line = " ".join(line_values)  # Crear la línea concatenando los valores
-                    f.write(line + "   ")  # Escribir la línea en el archivo
-                f.write("\n\n")
+                if write_atomic_positions:
+                    max_row_atomic_positions = max(int(param.split('_')[2]) for param in params if param.startswith('atomic_positions'))
+                    f.write("ATOMIC_POSITIONS alat\n")
+                    for i in range(max_row_atomic_positions + 1):
+                        f.write(f'    {params.get(f"atomic_positions_{i}_0", "")}  {float(params.get(f"atomic_positions_{i}_1", 0)):.6f}  {float(params.get(f"atomic_positions_{i}_2", 0)):.6f}  {float(params.get(f"atomic_positions_{i}_3", 0)):.6f}\n')
+                    f.write("\n\n")
+
+                if write_k_points:
+                    f.write("K_POINTS automatic\n  ")
+                    for i in range(6):  # Siempre hay 6 parámetros de K_POINTS
+                        f.write(f'{params.get(f"K_POINTS_{i}", "")}')
+                        if i < 2:
+                            f.write(' ')
+                        elif i == 2:
+                            f.write('   ')
+                        elif i < 5:
+                            f.write(' ')
+                    f.write("\n\n")
+                
+                if write_cell_parameters:
+                    f.write("CELL_PARAMETERS\n")
+                    for i in range(3):
+                        for j in range(3):
+                            f.write(f'    {float(params.get(f"CELL_PARAMETERS_{i}_{j}", 0)):.6f}')
+                        f.write('\n')
+                    f.write('\n')
             else:
                 if any(value != '' and value is not None for value in params.values()):
                     f.write(f"&{section}\n")

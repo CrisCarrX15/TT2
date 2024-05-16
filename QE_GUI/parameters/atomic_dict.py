@@ -22,7 +22,7 @@ INPUT_DATA = {
     },
     'K_POINTS': {
         'description' : 'Specifies the k-points sampling method for Brillouin zone integration',
-        'input_type': 'matrix',
+        'input_type': 'k_points',
         'data': {
             'type': 'manual',
             'matrix': [
@@ -30,6 +30,10 @@ INPUT_DATA = {
                 [None, None, None]
             ]
         }
+    },
+    'CELL_PARAMETERS': {
+        'description' : 'Specifies the lattice vectors of the simulation cell in Cartesian coordinates',
+        'input_type': 'cell_parameters',
     }
 }
 
