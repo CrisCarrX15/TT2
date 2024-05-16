@@ -1,0 +1,31 @@
+&CONTROL
+   calculation = 'scf'
+   prefix = 'grafeno_1',
+   pseudo_dir = '/path/to/pseudopotentials',
+   outdir = './output'
+/
+&SYSTEM
+   ibrav = 0,
+   nat = 4,
+   ntyp = 1,
+   occupations = 'smearing',
+   smearing = 'gaussian',
+   degauss = 0.01
+/
+&ELECTRONS
+   conv_thr = 1e-8
+/
+CELL_PARAMETERS {angstrom}
+   2.46 0.00 0.00
+   1.23 2.13 0.00
+   0.00 0.00 15.0
+ATOMIC_SPECIES
+   C 12.011 C.pbe-n-kjpaw_psl.1.0.0.UPF
+ATOMIC_POSITIONS {angstrom}
+   C 0.00 0.00 0.00
+   C 1.23 0.71 0.00
+   C 0.00 1.42 0.00
+   C 1.23 2.13 0.00
+K_POINTS automatic
+   6 6 1 0 0 0
+

@@ -15,31 +15,11 @@
 from PySide2.QtWidgets import (QApplication, QMainWindow, QPushButton, QPlainTextEdit,
                                 QVBoxLayout, QWidget, QLabel, QLineEdit, QGridLayout,
                                 QFileDialog, QDialog, QTextEdit, QSizePolicy, QMessageBox)
-from PySide2.QtGui import QPixmap, QColor, QImageReader, QImage, QFont
-from PySide2.QtCore import Qt, Signal, QSize , QObject, QThread
+from PySide2.QtGui import QPixmap, QColor, QIcon
+from PySide2.QtCore import Qt, Signal, QSize
 import sys
 import subprocess
-import quantum_espresso_io as qe_io
-
-class QeWorker(QObject):
-    message_signal = Signal(str)
-
-    def run_qe_process(self):
-        for i in range(5):
-            self.message_signal.emit(f"Execute process {i}")
-            print(f"Execute process {i}")
-            subprocess.run('pw.x < ./test_files/C.in > ./test_files/C.out', shell=True)
-            self.message_signal.emit("Execute Finish")
-
-            energy = qe_io.find_total_energy("./test_files/C.out")
-            self.message_signal.emit(f"La energía total en la iteración {i} es: {energy}")
-            print(f"La energía total en la iteración {i} es: {energy}")
-
-            try:
-                qe_io.sum_ecut("./test_files/C.in", 5)
-            except Exception as e:
-                self.message_signal.emit(f"Something is wrong: {e}")
-
+import file_operations.quantum_espresso_io as qe_io
 
 class MainWindow(QMainWindow):
     message_signal = Signal(str)
@@ -74,19 +54,35 @@ class MainWindow(QMainWindow):
         controls_widget = QWidget()
         controls_layout = QVBoxLayout(controls_widget)
 
-        # Agregar un botón y un cuadro de texto para ejecutar QE
+        # Agregar botones con imágenes para seleccionar archivos .in
+        file_buttons_layout = QVBoxLayout()
+
+        self.btn_file_1 = QPushButton()
+        self.btn_file_1.setIcon(QIcon("./images/example_1.png"))
+        self.btn_file_1.setIconSize(QSize(150, 150))
+        self.btn_file_1.clicked.connect(lambda: self.select_file("./examples/grafeno_1.in"))
+        file_buttons_layout.addWidget(self.btn_file_1)
+
+        self.btn_file_2 = QPushButton()
+        self.btn_file_2.setIcon(QIcon("./images/example_2.png"))
+        self.btn_file_2.setIconSize(QSize(150, 150))
+        self.btn_file_2.clicked.connect(lambda: self.select_file("./examples/grafeno_2.in"))
+        file_buttons_layout.addWidget(self.btn_file_2)
+
+        self.btn_file_3 = QPushButton()
+        self.btn_file_3.setIcon(QIcon("./images/example_3.png"))
+        self.btn_file_3.setIconSize(QSize(150, 150))
+        self.btn_file_3.clicked.connect(lambda: self.select_file("./examples/grafeno_3.in"))
+        file_buttons_layout.addWidget(self.btn_file_3)
+
+        controls_layout.addLayout(file_buttons_layout)
+
+        # Agregar un botón para ejecutar QE
         self.btn_qe = QPushButton("Ejecutar QE")
         self.btn_qe.pressed.connect(self.start_process)
         self.btn_qe.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.btn_qe.setStyleSheet("background-color: #a8a8a8; color: black; font-size: 18px;")
         controls_layout.addWidget(self.btn_qe)
-
-        # Agregar un botón y un cuadro de texto para iterar QE
-        self.btn_iterate_qe = QPushButton("Iterar QE")
-        self.btn_iterate_qe.pressed.connect(self.iterate_process)
-        self.btn_iterate_qe.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.btn_iterate_qe.setStyleSheet("background-color: #a8a8a8; color: black; font-size: 18px;")
-        controls_layout.addWidget(self.btn_iterate_qe)
 
         # Crear la matriz para los puntos K
         self.k_points_label = QLabel("Puntos K:")
@@ -136,19 +132,10 @@ class MainWindow(QMainWindow):
         self.message("Executing process.")
         subprocess.run('pw.x < ./test_files/C.in > ./test_files/C.out', shell=True)
         self.message("Execute Finish")
-    
-    # Iteration process with thread
-    def iterate_process(self):
-        self.qe_worker = QeWorker()
-        self.qe_worker.message_signal.connect(self.message_signal.emit)
 
-        self.qe_thread = QThread()
-        self.qe_worker.moveToThread(self.qe_thread)
-
-        self.qe_thread.started.connect(self.qe_worker.run_qe_process)
-        self.qe_thread.finished.connect(self.qe_thread.quit)
-
-        self.qe_thread.start()
+    def select_file(self, file_name):
+        file_path = f"./test_files/{file_name}"
+        self.message(f"Archivo seleccionado: {file_path}")
 
     def save_and_modify_file(self):
         # Obtener el archivo .in
@@ -206,9 +193,16 @@ class FileContentDialog(QDialog):
 
         self.setLayout(layout)
 
+app = QApplication(sys.argv)
+window = MainWindow()
+window.show()
+sys.exit(app.exec_())
 
+
+"""
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+"""
