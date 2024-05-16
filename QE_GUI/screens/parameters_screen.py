@@ -246,6 +246,8 @@ class ParametersWindow(QMainWindow):
         for key, config in control_dict.items():
             description_text = f"{key}: {config.get('description', 'No description available')} ({config.get('type', 'Any type')})"
             label = QLabel(description_text)
+            if config.get('status', '') == 'REQUIRED':
+                label.setStyleSheet('color: #DB1900;')
             layout.addWidget(label)
 
             full_info = config.get('info', 'No information available')

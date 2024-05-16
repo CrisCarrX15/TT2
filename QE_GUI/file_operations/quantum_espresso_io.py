@@ -148,7 +148,7 @@ def create_in_file(file_path, filename, parameters):
                     for param, value in params.items():
                         if value != '' and value is not None:
                             if is_real_number(value) or is_integer(value):
-                                f.write(f"\t{param} = {value}\n")
+                                f.write(f"\t{param} = {value},\n")
                             else:
-                                f.write(f"\t{param} = \'{value}\'\n")
+                                f.write(f"\t{param} = \'{value}\',\n")
                     f.write("/\n\n")
