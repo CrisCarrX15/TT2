@@ -1,7 +1,7 @@
 &CONTROL
    calculation = 'scf'
    prefix = 'grafeno_1',
-   pseudo_dir = '/path/to/pseudopotentials',
+   pseudo_dir = './pseudos/',
    outdir = './output'
 /
 &SYSTEM
@@ -27,5 +27,4 @@ ATOMIC_POSITIONS {angstrom}
    C 0.00 1.42 0.00
    C 1.23 2.13 0.00
 K_POINTS automatic
-   6 6 1 0 0 0
-
+  6 6 1   0 0 0   
