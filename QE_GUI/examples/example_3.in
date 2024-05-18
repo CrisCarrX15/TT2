@@ -1,7 +1,7 @@
 &CONTROL
    calculation = 'scf'
    prefix = 'grafeno_3',
-   pseudo_dir = './pseudos/',
+ pseudo_dir = './examples/pseudos',
    outdir = './output'
 /
 &SYSTEM
