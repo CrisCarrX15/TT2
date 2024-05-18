@@ -2,11 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-color_of_atoms = {'H': 'red',  # hydrogen
-                  'C': 'black',  # carbon
-                  'O': 'blue',  # oxygen
-                  'N': 'green'  # nitrogen
-                  }
+atom_color_mapping = {
+    'H': 'red',       # Hydrogen
+    'C': 'black',     # Carbon
+    'O': 'blue',      # Oxygen
+    'N': 'green',     # Nitrogen
+    'S': 'yellow',    # Sulfur
+    'F': 'cyan',      # Fluorine
+    'Cl': 'limegreen' # Chlorine
+}
 
 
 def graph_in_file(xyz_file):
@@ -20,13 +24,14 @@ def graph_in_file(xyz_file):
     atom_type = data[:, 0]
 
     # Create a dictionary to map atom types to colors
-    atom_color_mapping = {'H': 'red', 'C': 'black', 'O': 'blue', 'N': 'green'}
+    #atom_color_mapping = {'H': 'red', 'C': 'black', 'O': 'blue', 'N': 'green'}
 
     # Get colors based on atom type
     colors = [atom_color_mapping[atom] for atom in atom_type]
 
     # Create a 3D figure
     fig = plt.figure()
+    #fig.canvas.setWindowTitle(xyz_file.split('.')[0])
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot the points in 3D with colors according to the type of atom
@@ -50,9 +55,11 @@ def graph_in_file(xyz_file):
     # Call the function to draw bonds
     draw_bonds(ax, x, y, z, atom_type)
 
-    # Create custom legends for atom type and color
+    # Create custom legends for atom type and color that appear in the data
+    unique_atoms = np.unique(atom_type)
     custom_legends = []
-    for atom, color in color_of_atoms.items():
+    for atom in unique_atoms:
+        color = atom_color_mapping[atom]
         custom_legends.append(plt.Line2D([0], [0], marker='o', color='w', label=atom, markersize=10, markerfacecolor=color))
 
     # Additional settings as needed
@@ -75,6 +82,9 @@ def graph_in_file(xyz_file):
 
     # Show legends
     ax.legend(handles=custom_legends)
+
+    # Hide the axes
+    ax.set_axis_off()
 
     # Show the figure
     plt.show()

@@ -24,7 +24,7 @@ from parameters.ions_dict import IONS_DICT
 from parameters.atomic_dict import INPUT_DATA
 from parameters.config_dict import CONFIG_DICT
 from parameters.rism_dict import RISM_DICT
-from file_operations.quantum_espresso_io import create_in_file
+from file_operations.quantum_espresso_io import create_in_file, extract_atomic_positions_in, extract_atomic_positions_out, create_xyz_file
 from file_operations.project import save_data, load_data, find_max_rows
 from file_operations.run_quantum_espresso import RunQuantumEspresso
 
@@ -417,7 +417,11 @@ class ParametersWindow(QMainWindow):
     def run_qe(self):
         run = RunQuantumEspresso()
         run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+        atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
+        atomic_positions_out = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.out')
     
+        create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
+        create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
 
     def get_tab_info(self, tab_index):
         info = {}

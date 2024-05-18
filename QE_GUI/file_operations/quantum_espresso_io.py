@@ -14,6 +14,8 @@
 
 from file_operations.input_validation import is_real_number, is_integer
 
+
+# ========== FIND TOTAL ENERGY ==========
 def find_total_energy(filename):
     # Read the input file
     with open(filename, 'r') as file:
@@ -31,6 +33,7 @@ def find_total_energy(filename):
     return(total_energy)
 
 
+# ========== MODIFY K_POINTS ==========
 def modify_k_points(filename, k_points):
     # Read the input file
     with open(filename, 'r') as file:
@@ -50,6 +53,7 @@ def modify_k_points(filename, k_points):
         modified_file.writelines(lines)
 
 
+# ========== MODIFY ECUTWFC ==========
 def modify_ecut(filename, ecut):
     # Read the input file
     with open(filename, 'r') as file:
@@ -67,6 +71,7 @@ def modify_ecut(filename, ecut):
         modified_file.writelines(lines)   
 
 
+# ========== ADD CERTAIN AMOUNT TO ECUTWFC ==========
 def sum_ecut(filename, number_to_add):
     # Read the input file
     with open(filename, 'r') as file:
@@ -90,6 +95,64 @@ def sum_ecut(filename, number_to_add):
     # Save the modified file
     with open(filename, 'w') as modified_file:
         modified_file.writelines(lines)
+
+
+# ========== EXTRACT ATOMIC_POSITIONS IN .IN FILE ==========
+def extract_atomic_positions_in(filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    atomic_positions = []
+    in_atomic_positions = False
+
+    for line in lines:
+        if 'ATOMIC_POSITIONS' in line:
+            in_atomic_positions = True
+            continue  # Saltar la línea de cabecera
+
+        if in_atomic_positions:
+            if line.strip() == '' or 'K_POINTS' in line or 'CELL_PARAMETERS' in line:
+                break  # Salir si se encuentra una línea vacía
+            atomic_positions.append(line.strip())
+
+    return atomic_positions
+
+
+# ========== EXTRACT ATOMIC_POSITIONS IN .OUT FILE ==========
+def extract_atomic_positions_out(filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    atomic_positions = []
+    in_atomic_positions = False
+
+    for line in lines:
+        if 'positions (alat units)' in line:
+            in_atomic_positions = True
+            continue  # Saltar la línea de cabecera
+
+        if in_atomic_positions:
+            if 'tau(' in line:
+                parts = line.split()
+                atom = parts[1]
+                x = parts[-4].strip('()')
+                y = parts[-3].strip('()')
+                z = parts[-2].strip('()')
+                atomic_positions.append(f"{atom} {x} {y} {z}")
+            else:
+                break  # Salir si no se encuentra 'tau('
+
+    return atomic_positions
+
+# ========== CREATE .XYZ FILE ==========
+def create_xyz_file(atomic_positions, output_filename, description="Molecula"):
+    num_atoms = len(atomic_positions)
+    with open(output_filename, 'w') as file:
+        file.write(f"{num_atoms}\n")
+        file.write(f"{description}\n")
+        for pos in atomic_positions:
+            file.write(f"{pos}\n")
+
 
 
 def create_in_file(file_path, filename, parameters):

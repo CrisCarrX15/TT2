@@ -2,12 +2,13 @@
    calculation = 'scf'
    prefix = 'grafeno_1',
    pseudo_dir = './examples/pseudos',
-   outdir = './output'
+   outdir = './examples/output/example_1'
 /
 &SYSTEM
    ibrav = 0,
-   nat = 4,
+   nat = 2,
    ntyp = 1,
+  ecutwfc = 45.0,
    occupations = 'smearing',
    smearing = 'gaussian',
    degauss = 0.01
@@ -24,7 +25,5 @@ ATOMIC_SPECIES
 ATOMIC_POSITIONS {angstrom}
    C 0.00 0.00 0.00
    C 1.23 0.71 0.00
-   C 0.00 1.42 0.00
-   C 1.23 2.13 0.00
 K_POINTS automatic
-  6 6 1   0 0 0   
+  1 1 1   0 0 0   
