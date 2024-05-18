@@ -3,6 +3,7 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget, Q
 from PySide2.QtGui import QPixmap, QColor, QIcon
 from PySide2.QtCore import Qt
 from screens.parameters_screen import run_parameters
+from screens.archive import run_archive
 
 class AppStyle:
     @staticmethod
@@ -180,7 +181,8 @@ class WelcomeWindow(QMainWindow):
             print("Archivo seleccionado:", file_path)
 
     def nuevo_calculo(self, event):
-        print("Nuevo cálculo button clicked")
+        self.archive = run_archive()
+        
 
     def show_create_open_window(self, event):
         self.create_open_window = CreateOpenWindow()
@@ -194,4 +196,5 @@ def run_main():
 
 if __name__ == '__main__':
     run_main()
+
 
