@@ -132,13 +132,24 @@ class ArchiveWindow(QMainWindow):
         if not self.validate_inputs():
             self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
             return
-        output_file = input_file.replace('.in', '.out')
+
+        output_dir = './output'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        output_file = os.path.join(output_dir, os.path.basename(input_file.replace('.in', '.out')))
         self.run_qe(input_file, output_file)
 
     def iterate_qe(self, input_file):
         if not self.validate_inputs():
             self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
             return
+
+        output_dir = './output'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        output_file = os.path.join(output_dir, os.path.basename(input_file.replace('.in', '.out')))
 
         # Obtener los valores de los puntos K y la energía de corte
         k_points = self.get_k_points()
@@ -160,7 +171,6 @@ class ArchiveWindow(QMainWindow):
         energy_list = []
 
         run = RunQuantumEspresso()
-        output_file = input_file.replace('.in', '.out')
 
         while not converged and iteration < max_iterations:
             # Ejecutar Quantum ESPRESSO
@@ -226,6 +236,7 @@ def run_archive():
 
 if __name__ == "__main__":
     run_archive()
+
 
 
  
