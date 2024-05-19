@@ -17,6 +17,8 @@ from PySide2.QtGui import QColor, QFont
 from functools import partial
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QTextEdit
+from screens.DialogMessage import DialogMessage
+
 from parameters.control_dict import CONTROL_DICT
 from parameters.system_dict import SYSTEM_DICT
 from parameters.electrons_dict import ELECTRONS_DICT
@@ -27,6 +29,7 @@ from parameters.rism_dict import RISM_DICT
 from file_operations.quantum_espresso_io import create_in_file, extract_atomic_positions_in, extract_atomic_positions_out, create_xyz_file
 from file_operations.project import save_data, load_data, find_max_rows
 from file_operations.run_quantum_espresso import RunQuantumEspresso
+from visualization.graphic_3d import graph_in_file
 
 class AppParametersStyle:
     @staticmethod
@@ -150,7 +153,6 @@ class ParametersWindow(QMainWindow):
                 identifier = f"atomic_species_{i}_{j}"
                 text_matrix_layout.addWidget(text_edit)
                 widget_dict[identifier] = text_edit
-        # ================================================================================= ARREGLAR QUE SE AGREGUE NUEVA FILA Y NO QUE SE AÑADA EN EL MISMO ESPACIO
             text_layout.addLayout(text_matrix_layout)
 
         add_table_button = QPushButton("Add row")
@@ -304,29 +306,24 @@ class ParametersWindow(QMainWindow):
         button_layout.setSpacing(10)
         layout.addLayout(button_layout)
 
-        save_project_button = QPushButton(f'Save {self.project_name} project')
+        save_project_button = QPushButton(f'Save {self.project_name}.qg project')
         save_project_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         save_project_button.clicked.connect(self.save_project)
         button_layout.addWidget(save_project_button)
 
-        save_in_button = QPushButton(f'Save {self.project_name}.in file')
+        save_in_button = QPushButton(f'Save and Run {self.project_name}.in file')
         save_in_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        save_in_button.clicked.connect(self.create_in)
+        save_in_button.clicked.connect(self.create_and_run_infile)
         button_layout.addWidget(save_in_button)
-
-        run_qe_button = QPushButton(f'Run {self.project_name}.in file')
-        run_qe_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        run_qe_button.clicked.connect(self.run_qe)
-        button_layout.addWidget(run_qe_button)
 
         cancel_button = QPushButton("Cancel")
         cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         button_layout.addWidget(cancel_button)
 
     
-    def show_full_text(self, text, parameter):
+    def show_windows_message(self, text, title, color):
         dialog = QDialog(self)
-        dialog.setWindowTitle(parameter)
+        dialog.setWindowTitle(title)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.setMinimumWidth(400)  # Establecer el ancho mínimo del diálogo
 
@@ -336,6 +333,7 @@ class ParametersWindow(QMainWindow):
         text_edit.setPlainText(text)
         text_edit.setReadOnly(True)  # Hacer el QTextEdit de solo lectura
         text_edit.setFont(QFont("Arial", 12))  # Establecer un tamaño de fuente más grande
+        text_edit.setStyleSheet(f"background-color: {color};")
         layout.addWidget(text_edit)
 
         close_button = QPushButton("Close")
@@ -365,8 +363,9 @@ class ParametersWindow(QMainWindow):
         info_dict[self.tab_config_name] = config_info
 
         save_data(self.file_path, self.project_name, info_dict)
+        self.show_windows_message(f'The {self.project_name}.qj file was saved successfully', 'Success', '#28a745')
 
-    def create_in(self):
+    def create_and_run_infile(self):
         control_info = self.get_tab_info(self.tab_control_name)
         system_info = self.get_tab_info(self.tab_system_name)
         electrons_info = self.get_tab_info(self.tab_electrons_name)
@@ -382,46 +381,35 @@ class ParametersWindow(QMainWindow):
         info_dict[self.tab_ions_name] = ions_info
         info_dict[self.tab_rism_name] = rism_info
         info_dict[self.tab_input_name] = input_info
-        info_dict[self.tab_config_name] = config_info
+        #info_dict[self.tab_config_name] = config_info
 
-        create_in_file(self.file_path, self.project_name,info_dict)
-    
-        print("Información de Control Dict:")
-        for key, value in control_info.items():
-            print(f"{key}: {value}")
+        create_in_file(self.file_path, self.project_name, info_dict)
+        message = self.run_qe(config_info)
+        if message == 'Success':
+            self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
+        else:
+            self.show_windows_message(message, 'Error', '#DC3545')
+        #dialog = DialogMessage(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
+        #dialog.exec_()
+        
+    def run_qe(self, config_info):
+        message = 'Success'
+        try:
+            run = RunQuantumEspresso()
+            run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+            atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
+            atomic_positions_out = extract_atomic_positions_out(f'{self.file_path}/{self.project_name}.out')
 
-        print("\nInformación de System Dict:")
-        for key, value in system_info.items():
-            print(f"{key}: {value}")
-        
-        print("\nInformación de Electrons Dict:")
-        for key, value in electrons_info.items():
-            print(f"{key}: {value}")
+            if config_info['graph_3D'] == 'Yes':
+                create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
+                create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
 
-        print("\nInformación de Ions Dict:")
-        for key, value in ions_info.items():
-            print(f"{key}: {value}")
-        
-        print("\nInformación de Rims Dict:")
-        for key, value in rism_info.items():
-            print(f"{key}: {value}")
-
-        print("\nInformación de Input Data:")
-        for key, value in input_info.items():
-            print(f"{key}: {value}")
-        
-        print("\nInformación de Config Dict:")
-        for key, value in config_info.items():
-            print(f"{key}: {value}")
-        
-    def run_qe(self):
-        run = RunQuantumEspresso()
-        run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
-        atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
-        atomic_positions_out = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.out')
-    
-        create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
-        create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
+                graph_in_file(f'{self.file_path}/{self.project_name}_in.xyz', f'{self.project_name}_in')
+                graph_in_file(f'{self.file_path}/{self.project_name}_out.xyz', f'{self.project_name}_out')
+            message = 'Success'
+        except Exception as e:
+            message = f'Something went wrong: {str(e)}'
+        return message
 
     def get_tab_info(self, tab_index):
         info = {}
@@ -441,7 +429,9 @@ class ParametersWindow(QMainWindow):
 
     def connect_button_clicked(self, button, text, parameter):
         def on_button_clicked():
-            self.show_full_text(text, parameter)
+            self.show_windows_message(text, parameter, '#5f7eb2')
+            #dialog = DialogMessage(text, parameter, '#5f7eb2')
+            #dialog.exec_()
         button.clicked.connect(on_button_clicked)
     
 

@@ -2,18 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-atom_color_mapping = {
-    'H': 'red',       # Hydrogen
-    'C': 'black',     # Carbon
-    'O': 'blue',      # Oxygen
-    'N': 'green',     # Nitrogen
-    'S': 'yellow',    # Sulfur
-    'F': 'cyan',      # Fluorine
-    'Cl': 'limegreen' # Chlorine
-}
 
+def graph_in_file(xyz_file, title):
 
-def graph_in_file(xyz_file):
+    atom_color_mapping = {
+        'H': 'red',       # Hydrogen
+        'C': 'black',     # Carbon
+        'O': 'blue',      # Oxygen
+        'N': 'green',     # Nitrogen
+        'S': 'yellow',    # Sulfur
+        'F': 'cyan',      # Fluorine
+        'Cl': 'limegreen' # Chlorine
+    }
+
     # Load data from file
     data = np.loadtxt(xyz_file, skiprows=2, dtype=str)  # Assuming the first two lines contain metadata
 
@@ -31,18 +32,16 @@ def graph_in_file(xyz_file):
 
     # Create a 3D figure
     fig = plt.figure()
-    #fig.canvas.setWindowTitle(xyz_file.split('.')[0])
+    fig.canvas.setWindowTitle(title)
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot the points in 3D with colors according to the type of atom
     scatter = ax.scatter(x, y, z, c=colors, s=50, label='Átomos')
 
-    atoms_info = {}
+    #atoms_info = {}
 
     # Function to draw bonds between atoms
-    def draw_bonds(ax, x, y, z, atom_type):
-        #if atoms_info.get(atom_type, False) != '':
-        #    atoms_info[atom_type] = atom_color_mapping.get(color_of_atoms, "gray")
+    def draw_bonds(ax, x, y, z):
 
         for i in range(len(x)):
             for j in range(i + 1, len(x)):
@@ -53,7 +52,7 @@ def graph_in_file(xyz_file):
                     ax.plot([x[i], x[j]], [y[i], y[j]], [z[i], z[j]], color='gray', alpha=0.5)
 
     # Call the function to draw bonds
-    draw_bonds(ax, x, y, z, atom_type)
+    draw_bonds(ax, x, y, z)
 
     # Create custom legends for atom type and color that appear in the data
     unique_atoms = np.unique(atom_type)
@@ -62,11 +61,6 @@ def graph_in_file(xyz_file):
         color = atom_color_mapping[atom]
         custom_legends.append(plt.Line2D([0], [0], marker='o', color='w', label=atom, markersize=10, markerfacecolor=color))
 
-    # Additional settings as needed
-    #ax.set_xlabel('X')
-    #ax.set_ylabel('Y')
-    #ax.set_zlabel('Z')
-    # Get rid of colored axes planes
     # First remove fill
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
@@ -78,7 +72,7 @@ def graph_in_file(xyz_file):
     ax.zaxis.pane.set_edgecolor('w')
     # Bonus: To get rid of the grid as well:
     ax.grid(False)
-    ax.set_title('3D Visualization of Atoms')
+    ax.set_title(title)
 
     # Show legends
     ax.legend(handles=custom_legends)
@@ -90,4 +84,4 @@ def graph_in_file(xyz_file):
     plt.show()
 
 
-graph_in_file('./atom3.xyz')
+#graph_in_file('./atom3.xyz')

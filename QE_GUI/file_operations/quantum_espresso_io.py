@@ -132,12 +132,14 @@ def extract_atomic_positions_out(filename):
             continue  # Saltar la línea de cabecera
 
         if in_atomic_positions:
+            #print(f'Analizando la linea {line}')
             if 'tau(' in line:
                 parts = line.split()
                 atom = parts[1]
                 x = parts[-4].strip('()')
                 y = parts[-3].strip('()')
                 z = parts[-2].strip('()')
+                #print(f"{atom} {x} {y} {z}")
                 atomic_positions.append(f"{atom} {x} {y} {z}")
             else:
                 break  # Salir si no se encuentra 'tau('
