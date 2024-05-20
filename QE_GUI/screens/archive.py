@@ -215,9 +215,9 @@ class ArchiveWindow(QMainWindow):
     def plot_energies(self, ecutwfc_list, energy_list):
         plt.figure(figsize=(10, 6))
         plt.plot(ecutwfc_list, energy_list, marker='o')
-        plt.xlabel('Energía de Corte (ecutwfc)')
-        plt.ylabel('Energía Total (Ry)')
-        plt.title('Energía Total vs Energía de Corte')
+        plt.xlabel('Cut Energy (ecutwfc)')
+        plt.ylabel('Total Energy (Ry)')
+        plt.title('Total Energy vs Cut Energy')
         plt.grid(True)
         plt.show()
 
@@ -242,6 +242,10 @@ if __name__ == "__main__":
     run_archive()
 
 
+
+
+
+ 
 
 
 
