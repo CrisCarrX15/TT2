@@ -1,3 +1,18 @@
+###################################################
+##                                               ##
+##    main_screen.py                             ##
+##    Modules to create, modify and delete       ##
+##    Quantum ESPRESSO files                     ##
+##                                               ##
+##  Authors:                                     ##
+##    Marco Uriel Aguilar Lara                   ##
+##    Cristian Eduardo Carrillo Soto             ##
+##                                               ##
+##  From: ESCOM, National Polytechnic Institute  ##
+##                                               ##
+###################################################
+
+
 import os
 from PySide2.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QListWidget, QListWidgetItem, QFileDialog, QLineEdit, QPushButton, QDialog
 from PySide2.QtGui import QPixmap, QColor, QIcon
@@ -28,7 +43,6 @@ class CreateOpenWindow(QMainWindow):
         create_button = QLabel(self)
         create_button.setPixmap(QPixmap('./screens/images/create.png').scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         create_button.mousePressEvent = self.create_clicked
-        #create_button.clicked.connect(self.create_clicked) 
         button_layout.addWidget(create_button)
 
         button_layout.addStretch(1)
@@ -45,11 +59,9 @@ class CreateOpenWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def create_clicked(self, event=None):  
-        # Create and show the popup window
         dialog = PopupWindow(self)
         if dialog.exec_():
             entered_text = dialog.get_text()
-            # If the user enters the name of the project, the parameters screen is executed
             if entered_text:
                 directory = self.select_folder()
                 if directory:
@@ -85,7 +97,6 @@ class CreateOpenWindow(QMainWindow):
         return directory
 
 
-# ========== POPUP TO CREATE NEW PROJECT ==========
 class PopupWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -95,11 +106,9 @@ class PopupWindow(QDialog):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        # Text field to enter text
         self.text_input = QLineEdit()
         layout.addWidget(self.text_input)
 
-        # "Create" Button
         create_button = QPushButton("Create")
         create_button.clicked.connect(self.accept)
         layout.addWidget(create_button, alignment=Qt.AlignCenter)
@@ -107,23 +116,32 @@ class PopupWindow(QDialog):
         self.setLayout(layout)
 
     def get_text(self):
-        # Return the text entered by the user in the QLineEdit
         return self.text_input.text()
 
 
-# ========== MAIN WINDOW ========== 
 class WelcomeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         AppStyle.apply(self)
         layout = QVBoxLayout()
 
-        imagen_label = QLabel(self)
-        pixmap = QPixmap('./screens/images/GUI.jpeg')
-        if not pixmap.isNull():
-            pixmap = pixmap.scaled(200, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            imagen_label.setPixmap(pixmap)
-        layout.addWidget(imagen_label, alignment=Qt.AlignTop | Qt.AlignRight)
+        header_layout = QHBoxLayout()
+
+        top_left_image_label = QLabel(self)
+        pixmap_top_left = QPixmap('./screens/images/ESCOM.png')
+        if not pixmap_top_left.isNull():
+            pixmap_top_left = pixmap_top_left.scaled(250, 250, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            top_left_image_label.setPixmap(pixmap_top_left)
+        header_layout.addWidget(top_left_image_label, alignment=Qt.AlignLeft)
+
+        top_right_image_label = QLabel(self)
+        pixmap_top_right = QPixmap('./screens/images/GUI.jpeg')
+        if not pixmap_top_right.isNull():
+            pixmap_top_right = pixmap_top_right.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            top_right_image_label.setPixmap(pixmap_top_right)
+        header_layout.addWidget(top_right_image_label, alignment=Qt.AlignRight)
+
+        layout.addLayout(header_layout)
 
         welcome_label = QLabel("Welcome", self)
         welcome_label.setAlignment(Qt.AlignCenter)
@@ -131,6 +149,7 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(welcome_label)
 
         self.recent_documents_list = QListWidget(self)
+        self.recent_documents_list.itemClicked.connect(self.display_file_contents)
         layout.addWidget(self.recent_documents_list)
 
         self.show_in_files()
@@ -141,11 +160,6 @@ class WelcomeWindow(QMainWindow):
         tutorial_button.setPixmap(QPixmap('./screens/images/tutorial.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         tutorial_button.mousePressEvent = self.tutorial_clicked
         buttons_layout.addWidget(tutorial_button)
-
-        subir_button = QLabel(self)
-        subir_button.setPixmap(QPixmap('./screens/images/upload.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        subir_button.mousePressEvent = self.subir_archivo
-        buttons_layout.addWidget(subir_button)
 
         nuevo_calculo_button = QLabel(self)
         nuevo_calculo_button.setPixmap(QPixmap('./screens/images/new_calculation.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -165,24 +179,25 @@ class WelcomeWindow(QMainWindow):
 
     def show_in_files(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
+        print(f"Current directory: {current_dir}")
         for filename in os.listdir(current_dir):
-            if filename.endswith(".in"):
+            print(f"Found file: {filename}")
+            if filename.endswith(".in") or filename.endswith(".qg"):
+                print(f"Adding file to list: {filename}")
                 item = QListWidgetItem(QIcon('./screens/images/file_icon.png'), filename)
                 self.recent_documents_list.addItem(item)
+
+    def display_file_contents(self, item):
+        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), item.text())
+        with open(file_path, 'r') as file:
+            content = file.read()
+            print(f"Contents of {item.text()}:\n{content}")
 
     def tutorial_clicked(self, event):
         print("Tutorial button clicked")
 
-    def subir_archivo(self, event):
-        file_dialog = QFileDialog(self)
-        file_dialog.setNameFilter("Archivos (*.in)")
-        if file_dialog.exec_():
-            file_path = file_dialog.selectedFiles()[0]
-            print("Archivo seleccionado:", file_path)
-
     def nuevo_calculo(self, event):
         self.archive = run_archive()
-        
 
     def show_create_open_window(self, event):
         self.create_open_window = CreateOpenWindow()
