@@ -22,6 +22,7 @@ import os
 import sys
 import subprocess
 import file_operations.quantum_espresso_io as qe_io
+import matplotlib.pyplot as plt
 
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
@@ -132,24 +133,13 @@ class ArchiveWindow(QMainWindow):
         if not self.validate_inputs():
             self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
             return
-
-        output_dir = './output'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
-        output_file = os.path.join(output_dir, os.path.basename(input_file.replace('.in', '.out')))
+        output_file = input_file.replace('.in', '.out')
         self.run_qe(input_file, output_file)
 
     def iterate_qe(self, input_file):
         if not self.validate_inputs():
             self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
             return
-
-        output_dir = './output'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
-        output_file = os.path.join(output_dir, os.path.basename(input_file.replace('.in', '.out')))
 
         # Obtener los valores de los puntos K y la energía de corte
         k_points = self.get_k_points()
@@ -169,8 +159,10 @@ class ArchiveWindow(QMainWindow):
         previous_energy = None
         iteration = 0
         energy_list = []
+        ecutwfc_list = []
 
         run = RunQuantumEspresso()
+        output_file = input_file.replace('.in', '.out')
 
         while not converged and iteration < max_iterations:
             # Ejecutar Quantum ESPRESSO
@@ -179,7 +171,8 @@ class ArchiveWindow(QMainWindow):
             # Leer la energía total del sistema
             total_energy_str = qe_io.find_total_energy(output_file)
             total_energy = float(total_energy_str.split()[0])  # Asume que el formato es algo como "total_energy Ry"
-            energy_list.append((energy, total_energy))
+            energy_list.append(total_energy)
+            ecutwfc_list.append(energy)
 
             # Comprobar convergencia
             if previous_energy is not None:
@@ -202,6 +195,9 @@ class ArchiveWindow(QMainWindow):
         if not converged:
             self.message(f'No se alcanzó la convergencia después de {max_iterations} iteraciones. Última energía total={total_energy}')
 
+        # Generar la gráfica al final de la iteración
+        self.plot_energies(ecutwfc_list, energy_list)
+
     def validate_inputs(self):
         return all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip()
 
@@ -216,6 +212,15 @@ class ArchiveWindow(QMainWindow):
         run.run_qe_process(input_file, output_file)
         self.message(f"Proceso QE ejecutado. Archivo de salida: {output_file}")
 
+    def plot_energies(self, ecutwfc_list, energy_list):
+        plt.figure(figsize=(10, 6))
+        plt.plot(ecutwfc_list, energy_list, marker='o')
+        plt.xlabel('Energía de Corte (ecutwfc)')
+        plt.ylabel('Energía Total (Ry)')
+        plt.title('Energía Total vs Energía de Corte')
+        plt.grid(True)
+        plt.show()
+
 class FileContentDialog(QDialog):
     def __init__(self, parent, content):
         super(FileContentDialog, self).__init__(parent)
@@ -229,13 +234,14 @@ class FileContentDialog(QDialog):
         layout.addWidget(text_edit)
         self.setLayout(layout)
 
-
 def run_archive():
     archive_window = ArchiveWindow()
     archive_window.show()
 
 if __name__ == "__main__":
     run_archive()
+
+
 
 
 
