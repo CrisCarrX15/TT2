@@ -29,6 +29,7 @@ from parameters.rism_dict import RISM_DICT
 from file_operations.quantum_espresso_io import create_in_file, extract_atomic_positions_in, extract_atomic_positions_out, create_xyz_file
 from file_operations.project import save_data, load_data, find_max_rows
 from file_operations.run_quantum_espresso import RunQuantumEspresso
+from file_operations.input_validation import QEInputValidator
 from visualization.graphic_3d import graph_in_file
 
 class AppParametersStyle:
@@ -383,12 +384,19 @@ class ParametersWindow(QMainWindow):
         info_dict[self.tab_input_name] = input_info
         #info_dict[self.tab_config_name] = config_info
 
-        create_in_file(self.file_path, self.project_name, info_dict)
-        message = self.run_qe(config_info)
-        if message == 'Success':
-            self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
+        validation = QEInputValidator(info_dict)
+        error_message = ''
+        error_message += validation.validate_control()
+
+        if error_message != '':
+            self.show_windows_message(error_message, 'Error', '#DC3545')
         else:
-            self.show_windows_message(message, 'Error', '#DC3545')
+            create_in_file(self.file_path, self.project_name, info_dict)
+            message = self.run_qe(config_info)
+            if message == 'Success':
+                self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
+            else:
+                self.show_windows_message(message, 'Error', '#DC3545')
         #dialog = DialogMessage(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
         #dialog.exec_()
         
