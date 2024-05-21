@@ -1004,3 +1004,28 @@ SYSTEM_DICT = {'ibrav': {'description': 'Bravais lattice type',
                     'Height of the potential barrier in Rydberg.',
             'type' : 'REAL'}
 }
+
+
+ibrav_values = {
+    'free' : '0',
+    'cubic P' : '1',
+    'cubic F' : '2',
+    'cubic I' : '3',
+    '-cubic I' : '-3',
+    'Hexagonal and Trigonal P' : '4',
+    'Trigonal R, 3fold axis c' : '5',
+    'Trigonal R, 3fold axis <111>' : '-5',
+    'Tetragonal P (st)' : '6',
+    'Tetragonal I (bct)' : '7',
+    'Orthorhombic P' : '8',
+    'Orthorhombic base-centered(bco)' : '9',
+    '-Orthorhombic base-centered(bco)' : '-9',
+    'Orthorhombic one-face base-centered A-type' : '91',
+    'Orthorhombic face-centered' : '10',
+    'Orthorhombic body-centered' : '11',
+    'Monoclinic P, unique axis c' : '12',
+    'Monoclinic P, unique axis b' : '-12',
+    'Monoclinic base-centered (unique axis c)' : '13',
+    'Monoclinic base-centered (unique axis b)' : '-13',
+    'Triclinic' : '14'
+}

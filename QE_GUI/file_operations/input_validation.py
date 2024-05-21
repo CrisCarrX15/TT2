@@ -21,8 +21,9 @@ class QEInputValidator:
         error_message = ''
         for key, param_info in parameters_dict.items():
             # Check if 'status' is present in param_info, if not, by default it is considered ''
-            status = parameters_dict.get('status', '')
-            if status == 'REQUIRED' and key in in_parameters:
+            status = parameters_dict[key].get('status', '')
+            #if status == 'REQUIRED' and key in in_parameters:
+            if status == 'REQUIRED':
                 value = in_parameters[key]
                 if value == '' or value is None:
                     error_message += f'The parameter {key} is required but not provided\n'
@@ -157,9 +158,9 @@ class QEInputValidator:
                         error_message += 'block_1 and block_2 must be float.\n'
             
             # one_atom_occupation
-            if system.get('occupations', '')!='':
+            if system.get('one_atom_occupations', '')!='':
                 if system.get('nat', '')!='1' or system.get('occupations', '')!='from_input':
-                    error_message += 'To use @occupations is necessary @nat=1 and @occupations=\'from_input\'\n'
+                    error_message += 'To use @one_atom_occupations is necessary @nat=1 and @occupations=\'from_input\'\n'
             
             # edir, emaxpos, eopreg
             if system.get('tefield', '').lower() != '.true.':

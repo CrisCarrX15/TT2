@@ -14,7 +14,6 @@
 
 from file_operations.input_validation import is_real_number, is_integer
 
-
 # ========== FIND TOTAL ENERGY ==========
 def find_total_energy(filename):
     # Read the input file
@@ -169,7 +168,7 @@ def create_in_file(file_path, filename, parameters):
                 # Verificación para ATOMIC_POSITIONS
                 write_atomic_positions = any(param != '' for key, param in params.items() if key.startswith('atomic_positions'))
 
-                write_k_points = all(param == '' for param in params.values() if param.startswith('K_POINTS'))
+                write_k_points = all(param != '' for param in params.values() if param.startswith('K_POINTS'))
 
                 # Verificación para CELL_PARAMETERS
                 write_cell_parameters = any(param != '' for key, param in params.items() if key.startswith('CELL_PARAMETERS'))
@@ -217,3 +216,43 @@ def create_in_file(file_path, filename, parameters):
                             else:
                                 f.write(f"\t{param} = \'{value}\',\n")
                     f.write("/\n\n")
+
+# ========== FIND ERROR OR JOB DONE IN .OUT FILE ==========
+def check_qe_output(file_path):
+    message = ''
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            
+        # Check for specific error messages
+        error_messages = []
+        error_detected = False
+        job_done = False
+        
+        for line in lines:
+            if "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" in line:
+                error_detected = True
+                continue
+            if error_detected and "Error in routine" in line:
+                error_messages.append(line.strip())
+                error_detected = False
+            
+            if "JOB DONE" in line:
+                job_done = True
+        
+        if job_done:
+            message += ("JOB DONE")
+        elif error_messages:
+            message += ("Errors detected in the output file:")
+            for msg in error_messages:
+                message += (f" - {msg}")
+        else:
+            message += ("The job did not complete successfully, but no specific errors were found.")
+    
+    except FileNotFoundError:
+        message += (f"File {file_path} not found.")
+    except Exception as e:
+        message += (f"An error occurred while reading the file: {e}")
+    
+    return message
+
