@@ -402,12 +402,14 @@ class ParametersWindow(QMainWindow):
         #dialog.exec_()
         
     def run_qe(self, config_info):
-        message = 'Success'
         try:
+            message = 'Success'
             run = RunQuantumEspresso()
             run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
 
             output_message = check_qe_output(f'{self.file_path}/{self.project_name}.out')
+            if output_message != 'JOBE DONE':
+                message = output_message
 
             if config_info['graph_3D'] == 'Yes' and output_message == 'JOB DONE':
                 atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
@@ -417,7 +419,7 @@ class ParametersWindow(QMainWindow):
 
                 graph_in_file(f'{self.file_path}/{self.project_name}_in.xyz', f'{self.project_name}_in')
                 graph_in_file(f'{self.file_path}/{self.project_name}_out.xyz', f'{self.project_name}_out')
-            message = 'Success'
+                message = 'Success'
         except Exception as e:
             message = f'Something went wrong: {str(e)}'
         return message

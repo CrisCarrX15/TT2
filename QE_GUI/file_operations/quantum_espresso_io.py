@@ -236,18 +236,20 @@ def check_qe_output(file_path):
             if error_detected and "Error in routine" in line:
                 error_messages.append(line.strip())
                 error_detected = False
+                break
             
             if "JOB DONE" in line:
                 job_done = True
+                break
         
         if job_done:
-            message += ("JOB DONE")
+            message = 'JOB DONE'
         elif error_messages:
-            message += ("Errors detected in the output file:")
+            message = ("Errors detected in the output file:\n")
             for msg in error_messages:
                 message += (f" - {msg}")
         else:
-            message += ("The job did not complete successfully, but no specific errors were found.")
+            message = ("The job did not complete successfully, but no specific errors were found.")
     
     except FileNotFoundError:
         message += (f"File {file_path} not found.")
