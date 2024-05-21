@@ -20,10 +20,12 @@ from PySide2.QtCore import Qt
 from screens.parameters_screen import run_parameters
 from screens.archive import run_archive
 
+RECENT_FILES_PATH = './file_operations/recent_files.txt'
+
 class AppStyle:
     @staticmethod
     def apply(window):
-        window.setGeometry(100, 100, 1200, 800)  
+        window.setGeometry(100, 100, 1200, 800)
         window.setWindowTitle('')
         color_fondo = QColor(135, 158, 197)
         window.setStyleSheet(f'background-color: {color_fondo.name()};')
@@ -58,7 +60,7 @@ class CreateOpenWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-    def create_clicked(self, event=None):  
+    def create_clicked(self, event=None):
         dialog = PopupWindow(self)
         if dialog.exec_():
             entered_text = dialog.get_text()
@@ -66,14 +68,16 @@ class CreateOpenWindow(QMainWindow):
                 directory = self.select_folder()
                 if directory:
                     run_parameters(entered_text, directory, False)
-                
+                    self.add_recent_file(os.path.join(directory, entered_text + ".qg"))
+
     def open_clicked(self, event=None):
         file_path = self.select_file()
         if file_path:
             file_name = os.path.splitext(os.path.basename(file_path))[0]
             directory = os.path.dirname(file_path)
             run_parameters(file_name, directory, True)
-    
+            self.add_recent_file(file_path)
+
     def select_file(self):
         file_dialog = QFileDialog(self)
         file_dialog.setNameFilter("Files (*.qg)")
@@ -83,7 +87,7 @@ class CreateOpenWindow(QMainWindow):
             print("Archivo seleccionado:", file_path)
             return file_path
         return filename
-    
+
     def select_folder(self):
         folder_dialog = QFileDialog(self)
         folder_dialog.setFileMode(QFileDialog.Directory)
@@ -95,6 +99,10 @@ class CreateOpenWindow(QMainWindow):
             print("Directorio seleccionado:", directory)
             return directory
         return directory
+
+    def add_recent_file(self, file_path):
+        with open(RECENT_FILES_PATH, 'a') as f:
+            f.write(file_path + '\n')
 
 
 class PopupWindow(QDialog):
@@ -149,7 +157,7 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(welcome_label)
 
         self.recent_documents_list = QListWidget(self)
-        self.recent_documents_list.itemClicked.connect(self.display_file_contents)
+        self.recent_documents_list.itemClicked.connect(self.handle_file_click)
         layout.addWidget(self.recent_documents_list)
 
         self.show_in_files()
@@ -178,20 +186,28 @@ class WelcomeWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def show_in_files(self):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        print(f"Current directory: {current_dir}")
-        for filename in os.listdir(current_dir):
-            print(f"Found file: {filename}")
-            if filename.endswith(".in") or filename.endswith(".qg"):
-                print(f"Adding file to list: {filename}")
-                item = QListWidgetItem(QIcon('./screens/images/file_icon.png'), filename)
-                self.recent_documents_list.addItem(item)
+        if os.path.exists(RECENT_FILES_PATH):
+            with open(RECENT_FILES_PATH, 'r') as f:
+                recent_files = f.readlines()
 
-    def display_file_contents(self, item):
-        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), item.text())
-        with open(file_path, 'r') as file:
-            content = file.read()
-            print(f"Contents of {item.text()}:\n{content}")
+            for file_path in recent_files:
+                file_path = file_path.strip()
+                if os.path.exists(file_path):
+                    filename = os.path.basename(file_path)
+                    item = QListWidgetItem(QIcon('./screens/images/file_icon.png'), filename)
+                    item.setToolTip(file_path)
+                    self.recent_documents_list.addItem(item)
+
+    def handle_file_click(self, item):
+        file_path = item.toolTip()
+        if file_path.endswith('.qg'):
+            file_name = os.path.splitext(os.path.basename(file_path))[0]
+            directory = os.path.dirname(file_path)
+            run_parameters(file_name, directory, True)
+        else:
+            with open(file_path, 'r') as file:
+                content = file.read()
+                print(f"Contents of {item.text()}:\n{content}")
 
     def tutorial_clicked(self, event):
         print("Tutorial button clicked")
@@ -203,13 +219,16 @@ class WelcomeWindow(QMainWindow):
         self.create_open_window = CreateOpenWindow()
         self.create_open_window.show()
 
+
 def run_main():
     app = QApplication([])
     window = WelcomeWindow()
     window.show()
     app.exec_()
 
+
 if __name__ == '__main__':
     run_main()
+
 
 
