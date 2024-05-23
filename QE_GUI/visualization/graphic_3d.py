@@ -84,4 +84,4 @@ def graph_in_file(xyz_file, title):
     plt.show()
 
 
-#graph_in_file('./atom3.xyz')
+#graph_in_file('./33.xyz', 'graphene')

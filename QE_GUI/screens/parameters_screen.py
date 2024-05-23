@@ -140,7 +140,6 @@ class ParametersWindow(QMainWindow):
         tab_layout = QVBoxLayout(tab)
         tab_layout.addWidget(scroll_area)
 
-# ==================== NUEVO =========================
     # ============== CREATE THE WIDGET FOR ATOMIC SPECIES ===============
     def create_widgets_atomic_species(self, config, layout, rows):
         widget_dict = self.tab_widget_dict_widgets.get(self.tab_input_name, {})
@@ -234,7 +233,6 @@ class ParametersWindow(QMainWindow):
         # Actualizar el diccionario de widgets de la pestaña actual
         self.tab_widget_dict_widgets[self.tab_input_name] = widget_dict
 
-# ==================== NUEVO =========================
 
     def create_widgets(self, control_dict, layout, tab_index):
         widget_dict = {}
@@ -250,7 +248,7 @@ class ParametersWindow(QMainWindow):
             description_text = f"{key}: {config.get('description', 'No description available')} ({config.get('type', 'Any type')})"
             label = QLabel(description_text)
             if config.get('status', '') == 'REQUIRED':
-                label.setStyleSheet('color: #DB1900;')
+                label.setStyleSheet('color: #d8f8c0;')
             layout.addWidget(label)
 
             full_info = config.get('info', 'No information available')
@@ -317,9 +315,9 @@ class ParametersWindow(QMainWindow):
         save_in_button.clicked.connect(self.create_and_run_infile)
         button_layout.addWidget(save_in_button)
 
-        cancel_button = QPushButton("Cancel")
-        cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        button_layout.addWidget(cancel_button)
+        #cancel_button = QPushButton("Cancel")
+        #cancel_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        #button_layout.addWidget(cancel_button)
 
     
     def show_windows_message(self, text, title, color):
@@ -364,7 +362,7 @@ class ParametersWindow(QMainWindow):
         info_dict[self.tab_config_name] = config_info
 
         save_data(self.file_path, self.project_name, info_dict)
-        self.show_windows_message(f'The {self.project_name}.qj file was saved successfully', 'Success', '#28a745')
+        self.show_windows_message(f'The {self.project_name}.qj file was saved successfully', 'Success', '#d8f8c0')
 
     def create_and_run_infile(self):
         control_info = self.get_tab_info(self.tab_control_name)
@@ -395,9 +393,9 @@ class ParametersWindow(QMainWindow):
             create_in_file(self.file_path, self.project_name, info_dict)
             message = self.run_qe(config_info)
             if message == 'Success':
-                self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
+                self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#d8f8c0')
             else:
-                self.show_windows_message(message, 'Error', '#DC3545')
+                self.show_windows_message(message, 'Error', '#ffcbca')
         #dialog = DialogMessage(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
         #dialog.exec_()
         
@@ -405,7 +403,10 @@ class ParametersWindow(QMainWindow):
         try:
             message = 'Success'
             run = RunQuantumEspresso()
-            run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+            if config_info['performance'] == 'High':
+                run.run_qe_cores(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+            else:
+                run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
 
             output_message = check_qe_output(f'{self.file_path}/{self.project_name}.out')
             if output_message != 'JOBE DONE':
@@ -471,11 +472,4 @@ def run_parameters(project_name, file_path, load_qg_project):
     parameters_window = ParametersWindow(project_name, file_path, load_qg_project)
     AppParametersStyle.apply(parameters_window)
     parameters_window.show()
-"""
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    parametros_window = ParametersWIndow(CONTROL_DICT, SYSTEM_DICT)
-    AppStyle.apply(parametros_window)
-    parametros_window.show()
-    sys.exit(app.exec_())
-"""
+

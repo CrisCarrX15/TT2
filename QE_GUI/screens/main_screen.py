@@ -26,7 +26,7 @@ class AppStyle:
     @staticmethod
     def apply(window):
         window.setGeometry(100, 100, 1200, 800)
-        window.setWindowTitle('')
+        window.setWindowTitle('Quantum Graphene')
         color_fondo = QColor(135, 158, 197)
         window.setStyleSheet(f'background-color: {color_fondo.name()};')
 
@@ -69,6 +69,7 @@ class CreateOpenWindow(QMainWindow):
                 if directory:
                     run_parameters(entered_text, directory, False)
                     self.add_recent_file(os.path.join(directory, entered_text + ".qg"))
+                    self.close()
 
     def open_clicked(self, event=None):
         file_path = self.select_file()
@@ -85,7 +86,9 @@ class CreateOpenWindow(QMainWindow):
         if file_dialog.exec_():
             file_path = file_dialog.selectedFiles()[0]
             print("Archivo seleccionado:", file_path)
+            self.close()
             return file_path
+        self.close()
         return filename
 
     def select_folder(self):
