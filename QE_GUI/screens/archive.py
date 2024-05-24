@@ -12,17 +12,15 @@
 ##                                               ##
 ###################################################
 
-from PySide2.QtWidgets import (QApplication, QMainWindow, QPushButton, QPlainTextEdit,
-                                QVBoxLayout, QWidget, QLabel, QLineEdit, QGridLayout,
-                                QFileDialog, QDialog, QTextEdit, QSizePolicy, QMessageBox, QHBoxLayout)
-from PySide2.QtGui import QPixmap, QColor, QFont, QIcon
-from PySide2.QtCore import Qt, Signal, QSize, QObject, QThread
-from file_operations.run_quantum_espresso import RunQuantumEspresso
-import os
 import sys
+from PySide2.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QVBoxLayout, QWidget, QLabel, QLineEdit, QGridLayout, QFileDialog, QDialog, QTextEdit, QSizePolicy, QMessageBox, QHBoxLayout
+from PySide2.QtGui import QPixmap, QColor, QFont, QIcon
+from PySide2.QtCore import Qt, Signal, QSize
+import os
 import subprocess
-import file_operations.quantum_espresso_io as qe_io
 import matplotlib.pyplot as plt
+import file_operations.quantum_espresso_io as qe_io
+from file_operations.run_quantum_espresso import RunQuantumEspresso
 
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
@@ -76,6 +74,13 @@ class ArchiveWindow(QMainWindow):
         self.energy_editor = QLineEdit()
         self.energy_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
         controls_layout.addWidget(self.energy_editor)
+
+        # Crear el campo para el número de iteraciones
+        self.iterations_label = QLabel("Número de Iteraciones:")
+        controls_layout.addWidget(self.iterations_label)
+        self.iterations_editor = QLineEdit()
+        self.iterations_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
+        controls_layout.addWidget(self.iterations_editor)
 
         # Agregar botones para cargar archivos .in con imágenes y las opciones adicionales
         file_buttons_layout = QHBoxLayout()
@@ -138,12 +143,19 @@ class ArchiveWindow(QMainWindow):
 
     def iterate_qe(self, input_file):
         if not self.validate_inputs():
-            self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
+            self.message("Por favor, rellene todos los campos de puntos K, energía de corte y número de iteraciones.")
             return
 
         # Obtener los valores de los puntos K y la energía de corte
         k_points = self.get_k_points()
         energy = float(self.energy_editor.text())
+        iterations = self.iterations_editor.text()
+
+        if not iterations.isdigit():
+            self.message("Por favor, ingrese un número válido para las iteraciones.")
+            return
+
+        iterations = int(iterations)
 
         # Modificar el archivo de entrada con los nuevos valores
         qe_io.modify_k_points(input_file, k_points)
@@ -152,7 +164,7 @@ class ArchiveWindow(QMainWindow):
         # Configurar los parámetros de iteración
         energy_diff_threshold = 0.001
         ecutwfc_increment = 5.0
-        max_iterations = 15
+        max_iterations = iterations
 
         # Variables para el proceso iterativo
         converged = False
@@ -199,7 +211,7 @@ class ArchiveWindow(QMainWindow):
         self.plot_energies(ecutwfc_list, energy_list)
 
     def validate_inputs(self):
-        return all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip()
+        return all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip() and self.iterations_editor.text().strip()
 
     def get_k_points(self):
         k_points = []
@@ -235,14 +247,17 @@ class FileContentDialog(QDialog):
         self.setLayout(layout)
 
 def run_archive():
+    # Verificar si ya existe una instancia de QApplication
+    app = QApplication.instance()
+    if app is None:
+        app = QApplication(sys.argv)
     archive_window = ArchiveWindow()
     archive_window.show()
+    return app
 
 if __name__ == "__main__":
-    run_archive()
-
-
-
+    app = run_archive()
+    sys.exit(app.exec_())
 
 
  
