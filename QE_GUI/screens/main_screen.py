@@ -16,7 +16,7 @@
 import os
 from PySide2.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QListWidget, QListWidgetItem, QFileDialog, QLineEdit, QPushButton, QDialog
 from PySide2.QtGui import QPixmap, QColor, QIcon
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QSize
 from screens.parameters_screen import run_parameters
 from screens.archive import run_archive
 
@@ -160,6 +160,7 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(welcome_label)
 
         self.recent_documents_list = QListWidget(self)
+        self.recent_documents_list.setIconSize(QSize(55, 55))  # Ajusta el tamaño del icono aquí
         self.recent_documents_list.itemClicked.connect(self.handle_file_click)
         layout.addWidget(self.recent_documents_list)
 
@@ -181,6 +182,17 @@ class WelcomeWindow(QMainWindow):
         proyect_button.setPixmap(QPixmap('./screens/images/project.png').scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         proyect_button.mousePressEvent = self.show_create_open_window
         buttons_layout.addWidget(proyect_button)
+
+        # Add stretch to push the buttons to the left and image to the right
+        buttons_layout.addStretch(1)
+
+        # Add the image to the bottom right corner within the buttons_layout
+        bottom_image_label = QLabel(self)
+        pixmap_bottom = QPixmap('./screens/images/IPN.png')  # Adjust the path to your image
+        if not pixmap_bottom.isNull():
+            pixmap_bottom = pixmap_bottom.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            bottom_image_label.setPixmap(pixmap_bottom)
+        buttons_layout.addWidget(bottom_image_label, alignment=Qt.AlignRight)
 
         layout.addLayout(buttons_layout)
 
@@ -232,6 +244,3 @@ def run_main():
 
 if __name__ == '__main__':
     run_main()
-
-
-
