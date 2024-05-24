@@ -150,6 +150,7 @@ class ParametersWindow(QMainWindow):
             text_matrix_layout = QHBoxLayout()
             for j in range(3):  # Create rowsx3 text entries for atomic_species
                 text_edit = QLineEdit()
+                text_edit.setStyleSheet("background-color: white")
                 identifier = f"atomic_species_{i}_{j}"
                 text_matrix_layout.addWidget(text_edit)
                 widget_dict[identifier] = text_edit
@@ -175,6 +176,7 @@ class ParametersWindow(QMainWindow):
         text_matrix_layout = QHBoxLayout()
         for i in range(3):  # 3 columnas para atomic_species
             text_edit = QLineEdit()
+            text_edit.setStyleSheet("background-color: white")
             text_matrix_layout.addWidget(text_edit)
             # Construir el identificador único en el formato requerido
             identifier = f"atomic_species_{current_rows}_{i}"
@@ -196,6 +198,7 @@ class ParametersWindow(QMainWindow):
             text_matrix_layout = QHBoxLayout()
             for j in range(4):  # Create rowsx4 text entries for atomic_positions
                 text_edit = QLineEdit()
+                text_edit.setStyleSheet("background-color: white")
                 identifier = f"atomic_positions_{i}_{j}"
                 text_matrix_layout.addWidget(text_edit)
                 widget_dict[identifier] = text_edit
@@ -222,6 +225,7 @@ class ParametersWindow(QMainWindow):
         text_matrix_layout = QHBoxLayout()
         for i in range(4):  # 4 columnas para atomic_positions
             text_edit = QLineEdit()
+            text_edit.setStyleSheet("background-color: white")
             text_matrix_layout.addWidget(text_edit)
             # Construir el identificador único en el formato requerido
             identifier = f"atomic_positions_{current_rows}_{i}"
@@ -263,10 +267,13 @@ class ParametersWindow(QMainWindow):
 
             if input_type is None:
                 text_edit = QLineEdit()
+                text_edit.setFixedWidth(450) # Modify QLineEdit width size
+                text_edit.setStyleSheet("background-color: white")
                 layout.addWidget(text_edit)
                 widget_dict[key] = text_edit
             elif input_type == 'select_multiple':
                 combobox = QComboBox()
+                combobox.setFixedWidth(450)
                 combobox.setFont(QFont("Arial", 12))
                 combobox.addItems([''] + config['options'])
                 layout.addWidget(combobox)
@@ -275,6 +282,8 @@ class ParametersWindow(QMainWindow):
                 matrix_layout = QGridLayout()
                 for i in range(6):
                     text_edit = QLineEdit()
+                    text_edit.setFixedWidth(80)
+                    text_edit.setStyleSheet("background-color: white")
                     matrix_layout.addWidget(text_edit, 0, i)
                     widget_dict[f'{key}_{i}'] = text_edit
                 matrix_widget = QWidget()
@@ -285,6 +294,7 @@ class ParametersWindow(QMainWindow):
                 for i in range(3):
                     for j in range(3):
                         text_edit = QLineEdit()
+                        text_edit.setStyleSheet("background-color: white")
                         matrix_layout.addWidget(text_edit, i, j)
                         widget_dict[f'{key}_{i}_{j}'] = text_edit
                 matrix_widget = QWidget()
