@@ -1,6 +1,6 @@
 ###################################################
 ##                                               ##
-##  quantum_espresso_io.py                       ##
+##    archive.py                                 ##
 ##    Modules to create, modify and delete       ##
 ##    Quantum ESPRESSO files                     ##
 ##                                               ##
@@ -151,8 +151,8 @@ class ArchiveWindow(QMainWindow):
         energy = float(self.energy_editor.text())
         iterations = self.iterations_editor.text()
 
-        if not iterations.isdigit():
-            self.message("Por favor, ingrese un número válido para las iteraciones.")
+        if not iterations.isdigit() or int(iterations) <= 1:
+            self.message("Por favor, ingrese un número válido para las iteraciones (mayor a 1).")
             return
 
         iterations = int(iterations)
@@ -170,7 +170,7 @@ class ArchiveWindow(QMainWindow):
         converged = False
         previous_energy = None
         iteration = 0
-        energy_list = []
+        energy_list = []  # Asegurarse de que los nombres de las variables estén en minúsculas
         ecutwfc_list = []
 
         run = RunQuantumEspresso()
@@ -258,10 +258,3 @@ def run_archive():
 if __name__ == "__main__":
     app = run_archive()
     sys.exit(app.exec_())
-
-
- 
-
-
-
- 
