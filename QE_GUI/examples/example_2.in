@@ -1,17 +1,17 @@
-&CONTROL
-   calculation = 'scf'
-   prefix = 'grafeno_1',
-   pseudo_dir = './examples/pseudos',
-   outdir = './examples/output/example_2'
+&control
+    calculation = 'scf'
+    prefix = 'grafeno_12',
+    pseudo_dir = './examples/pseudos',
+    outdir = './examples/output/example_2'
 /
 &system
     ibrav = 4,
-    celldm(1) = 2.46, 
-    celldm(3) = 10.0, 
-    nat = 2,
+    celldm(1) = 2.46,  ! Longitud de celda en Ångström
+    celldm(3) = 4.0,   ! Separación entre capas en unidades de celldm(1)
+    nat = 12,
     ntyp = 1,
-  ecutwfc = 50.0,
-    ecutrho = 400.0
+  ecutwfc = 45.0,
+    ecutrho = 320.0
 /
 &electrons
     conv_thr = 1.0d-8,
@@ -24,5 +24,15 @@ ATOMIC_SPECIES
 ATOMIC_POSITIONS {alat}
     C 0.000000 0.000000 0.000000
     C 0.666667 0.333333 0.000000
+    C 1.333333 0.666667 0.000000
+    C 2.000000 1.000000 0.000000
+    C 2.666667 1.333333 0.000000
+    C 3.333333 1.666667 0.000000
+    C 0.000000 2.000000 0.000000
+    C 0.666667 2.333333 0.000000
+    C 1.333333 2.666667 0.000000
+    C 2.000000 3.000000 0.000000
+    C 2.666667 3.333333 0.000000
+    C 3.333333 3.666667 0.000000
 K_POINTS automatic
-  1 1 1   0 0 0   
+  6 6 1   0 0 0   
