@@ -6,7 +6,6 @@ from parameters.electrons_dict import ELECTRONS_DICT
 from parameters.ions_dict import IONS_DICT
 from parameters.rism_dict import RISM_DICT
 
-##### NOTA: AL INICIAR LA GUI POR PRIMERA VEZ DEBEMOS PREGUNTAR DONDE ESTA GUARDADA LA CARPETA DE qe-7.3
 
 
 class QEInputValidator:
