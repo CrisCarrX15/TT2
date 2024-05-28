@@ -14,13 +14,14 @@
 
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QVBoxLayout, QWidget, QLabel, QLineEdit, QGridLayout, QFileDialog, QDialog, QTextEdit, QSizePolicy, QMessageBox, QHBoxLayout
-from PySide2.QtGui import QPixmap, QColor, QFont, QIcon
-from PySide2.QtCore import Qt, Signal, QSize
+from PySide2.QtGui import QPixmap, QColor, QIcon
+from PySide2.QtCore import Qt, Signal, QSize, QThread
 import os
 import subprocess
 import matplotlib.pyplot as plt
 import file_operations.quantum_espresso_io as qe_io
-from file_operations.run_quantum_espresso import RunQuantumEspresso
+from file_operations.run_quantum_espresso import RunQuantumEspresso, RunQuantumEspressoThread
+from screens.LoadingScreen import LoadingDialog
 
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
@@ -106,6 +107,9 @@ class ArchiveWindow(QMainWindow):
         color_fondo = QColor(135, 158, 197)
         central_widget.setStyleSheet(f'background-color: {color_fondo.name()};')
 
+        ############## PONER SOLO LA SIGUIENTE LINEA DENTRO DEL __init__()!!!!!!!!!!!!!!!!!!! ###############
+        self.loading_dialog = LoadingDialog()
+
     def message(self, s):
         self.text.appendPlainText(s)
 
@@ -146,7 +150,6 @@ class ArchiveWindow(QMainWindow):
             self.message("Por favor, rellene todos los campos de puntos K, energía de corte y número de iteraciones.")
             return
 
-        # Obtener los valores de los puntos K y la energía de corte
         k_points = self.get_k_points()
         energy = float(self.energy_editor.text())
         iterations = self.iterations_editor.text()
@@ -157,58 +160,70 @@ class ArchiveWindow(QMainWindow):
 
         iterations = int(iterations)
 
-        # Modificar el archivo de entrada con los nuevos valores
         qe_io.modify_k_points(input_file, k_points)
         qe_io.modify_ecut(input_file, energy)
 
-        # Configurar los parámetros de iteración
         energy_diff_threshold = 0.001
         ecutwfc_increment = 5.0
         max_iterations = iterations
 
-        # Variables para el proceso iterativo
-        converged = False
-        previous_energy = None
-        iteration = 0
-        energy_list = []  # Asegurarse de que los nombres de las variables estén en minúsculas
-        ecutwfc_list = []
+        self.energy_list = []
+        self.ecutwfc_list = []
 
-        run = RunQuantumEspresso()
-        output_file = input_file.replace('.in', '.out')
+        self.run = RunQuantumEspresso()
+        self.output_file = input_file.replace('.in', '.out')
 
-        while not converged and iteration < max_iterations:
-            # Ejecutar Quantum ESPRESSO
-            run.run_qe_process(input_file, output_file)
+        self.iteration = 0
+        self.previous_energy = None
+        self.converged = False
+        self.energy = energy
+        self.input_file = input_file
+        self.energy_diff_threshold = energy_diff_threshold
+        self.ecutwfc_increment = ecutwfc_increment
+        self.max_iterations = max_iterations
 
-            # Leer la energía total del sistema
-            total_energy_str = qe_io.find_total_energy(output_file)
-            total_energy = float(total_energy_str.split()[0])  # Asume que el formato es algo como "total_energy Ry"
-            energy_list.append(total_energy)
-            ecutwfc_list.append(energy)
+        self.loading_dialog.show()
+        self.run_qe_iteration()
 
-            # Comprobar convergencia
-            if previous_energy is not None:
-                energy_diff = abs(total_energy - previous_energy)
-                if energy_diff < energy_diff_threshold:
-                    converged = True
-                    self.message(f'Convergencia alcanzada en iteración {iteration+1} con ecutwfc={energy} y energía total={total_energy}')
-                else:
-                    # Ajustar ecutwfc
-                    qe_io.sum_ecut(input_file, ecutwfc_increment)
+    def run_qe_iteration(self):
+        if not self.converged and self.iteration < self.max_iterations:
+            self.thread = QThread()
+            self.worker = RunQuantumEspressoThread(self.input_file, self.output_file)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.worker.finished.connect(self.on_qe_iteration_finished)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.thread.start()
+
+    def on_qe_iteration_finished(self):
+        total_energy_str = qe_io.find_total_energy(self.output_file)
+        total_energy = float(total_energy_str.split()[0])
+        self.energy_list.append(total_energy)
+        self.ecutwfc_list.append(self.energy)
+
+        if self.previous_energy is not None:
+            energy_diff = abs(total_energy - self.previous_energy)
+            if energy_diff < self.energy_diff_threshold:
+                self.converged = True
+                self.message(f'Convergencia alcanzada en iteración {self.iteration + 1} con ecutwfc={self.energy} y energía total={total_energy}')
             else:
-                # Si es la primera iteración, simplemente ajustar ecutwfc
-                qe_io.sum_ecut(input_file, ecutwfc_increment)
+                qe_io.sum_ecut(self.input_file, self.ecutwfc_increment)
+        else:
+            qe_io.sum_ecut(self.input_file, self.ecutwfc_increment)
 
-            # Actualizar la energía anterior
-            previous_energy = total_energy
-            energy += ecutwfc_increment  # Incrementar la energía de corte para la siguiente iteración
-            iteration += 1
+        self.previous_energy = total_energy
+        self.energy += self.ecutwfc_increment
+        self.iteration += 1
 
-        if not converged:
-            self.message(f'No se alcanzó la convergencia después de {max_iterations} iteraciones. Última energía total={total_energy}')
-
-        # Generar la gráfica al final de la iteración
-        self.plot_energies(ecutwfc_list, energy_list)
+        if not self.converged and self.iteration < self.max_iterations:
+            self.run_qe_iteration()
+        else:
+            self.loading_dialog.hide()
+            if not self.converged:
+                self.message(f'No se alcanzó la convergencia después de {self.max_iterations} iteraciones. Última energía total={total_energy}')
+            self.plot_energies(self.ecutwfc_list, self.energy_list)
 
     def validate_inputs(self):
         return all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip() and self.iterations_editor.text().strip()
@@ -258,3 +273,5 @@ def run_archive():
 if __name__ == "__main__":
     app = run_archive()
     sys.exit(app.exec_())
+
+
