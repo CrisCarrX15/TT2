@@ -18,6 +18,7 @@ from PySide2.QtGui import QPixmap, QColor, QFont, QIcon
 from PySide2.QtCore import Qt, Signal, QSize, QThread, QTimer
 import os
 import subprocess
+import threading
 import traceback
 import matplotlib.pyplot as plt
 import file_operations.quantum_espresso_io as qe_io
@@ -81,6 +82,25 @@ class QEIterateThread(QThread):
             self.finished_signal.emit(f'Convergence was not reached after {self.max_iterations} iterations. Last total energy={total_energy}')
         else:
             self.finished_signal.emit(f'Convergence achieved in iteration {iteration+1} with ecutwfc={self.energy} and total energy={total_energy}')
+
+class RunQESingleThread(QThread):
+    progress_signal = Signal(str)
+    finished_signal = Signal(str)
+
+    def __init__(self, input_file, parent=None):
+        super().__init__(parent)
+        self.input_file = input_file
+
+    def run(self):
+        try:
+            run = RunQuantumEspresso()
+            output_file = self.input_file.replace('.in', '.out')
+            run.run_qe_process(self.input_file, output_file)
+            self.finished_signal.emit(f"Quantum ESPRESSO process executed successfully. Output file: {output_file}")
+        except Exception as e:
+            self.progress_signal.emit(f"Error: {str(e)}")
+            traceback.print_exc()
+
 
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
@@ -200,23 +220,25 @@ class ArchiveWindow(QMainWindow):
             self.message(message)
             return
 
-        # First, put ecutwfc in input file
         qe_io.modify_ecut(input_file, float(self.energy_editor.text()))
         qe_io.modify_k_points(input_file, self.get_k_points())
 
-        output_file = input_file.replace('.in', '.out')
-        self.run_qe(input_file, output_file)
+        self.thread = RunQESingleThread(input_file)
+        self.thread.progress_signal.connect(self.message)
+        self.thread.finished_signal.connect(self.message)
+        self.thread.start()
+
 
     def iterate_qe(self, input_file):
         message = self.validate_inputs()
         if message != '':
             self.message(message)
             return
+
         k_points = self.get_k_points()
         energy = float(self.energy_editor.text())
         max_iterations = int(self.iterations_editor.text())
 
-        # First, put ecutwfc and k_points in input file
         qe_io.modify_ecut(input_file, energy)
         qe_io.modify_k_points(input_file, k_points)
 
@@ -224,6 +246,7 @@ class ArchiveWindow(QMainWindow):
         self.thread.progress_signal.connect(self.message)
         self.thread.finished_signal.connect(self.handle_thread_finished)
         self.thread.start()
+
 
     def handle_thread_finished(self, result):
         self.message(result)
