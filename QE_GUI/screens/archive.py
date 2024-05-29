@@ -56,11 +56,13 @@ class QEIterateThread(QThread):
                 self.energy_list.append(total_energy)
                 self.ecutwfc_list.append(self.energy)
 
+                self.progress_signal.emit(f'Iteration {iteration+1} with ecutwfc={self.energy} and total energy={total_energy}')
+
                 if previous_energy is not None:
                     energy_diff = abs(total_energy - previous_energy)
                     if energy_diff < self.energy_diff_threshold:
                         converged = True
-                        self.progress_signal.emit(f'Convergencia alcanzada en iteración {iteration+1} con ecutwfc={self.energy} y energía total={total_energy}')
+                        self.progress_signal.emit(f'Convergence achieved in iteration {iteration+1} with ecutwfc={self.energy} and total energy={total_energy}')
                     else:
                         qe_io.sum_ecut(self.input_file, self.ecutwfc_increment)
                 else:
@@ -71,14 +73,14 @@ class QEIterateThread(QThread):
                 iteration += 1
 
             except Exception as e:
-                self.progress_signal.emit(f'Error durante la iteración {iteration+1}: {str(e)}')
+                self.progress_signal.emit(f'Error during iteration {iteration+1}: {str(e)}')
                 traceback.print_exc()
                 break
 
         if not converged:
-            self.finished_signal.emit(f'No se alcanzó la convergencia después de {self.max_iterations} iteraciones. Última energía total={total_energy}')
+            self.finished_signal.emit(f'Convergence was not reached after {self.max_iterations} iterations. Last total energy={total_energy}')
         else:
-            self.finished_signal.emit(f'Convergencia alcanzada en iteración {iteration} con ecutwfc={self.energy} y energía total={total_energy}')
+            self.finished_signal.emit(f'Convergence achieved in iteration {iteration+1} with ecutwfc={self.energy} and total energy={total_energy}')
 
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
@@ -116,7 +118,7 @@ class ArchiveWindow(QMainWindow):
         controls_layout = QVBoxLayout(controls_widget)
 
         # Crear la fila para los puntos K
-        self.k_points_label = QLabel("Puntos K:")
+        self.k_points_label = QLabel("K Points:")
         controls_layout.addWidget(self.k_points_label)
 
         self.grid_layout = QGridLayout()
@@ -127,14 +129,14 @@ class ArchiveWindow(QMainWindow):
         controls_layout.addLayout(self.grid_layout)
 
         # Crear el campo para la energía de corte
-        self.energy_label = QLabel("Energía de Corte:")
+        self.energy_label = QLabel("Kinetic energy cutoff (Ry):")
         controls_layout.addWidget(self.energy_label)
         self.energy_editor = QLineEdit()
         self.energy_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
         controls_layout.addWidget(self.energy_editor)
 
         # Crear el campo para el número de iteraciones
-        self.iterations_label = QLabel("Número de Iteraciones:")
+        self.iterations_label = QLabel("Number of Iterations:")
         controls_layout.addWidget(self.iterations_label)
         self.iterations_editor = QLineEdit()
         self.iterations_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
@@ -193,19 +195,30 @@ class ArchiveWindow(QMainWindow):
         dialog.exec_()
 
     def run_single_qe(self, input_file):
-        if not self.validate_inputs():
-            self.message("Por favor, rellene todos los campos de puntos K y energía de corte.")
+        message = self.validate_inputs()
+        if message != '':
+            self.message(message)
             return
+
+        # First, put ecutwfc in input file
+        qe_io.modify_ecut(input_file, float(self.energy_editor.text()))
+        qe_io.modify_k_points(input_file, self.get_k_points())
+
         output_file = input_file.replace('.in', '.out')
         self.run_qe(input_file, output_file)
 
     def iterate_qe(self, input_file):
-        if not self.validate_inputs():
-            self.message("Por favor, rellene todos los campos de puntos K, energía de corte y número de iteraciones.")
+        message = self.validate_inputs()
+        if message != '':
+            self.message(message)
             return
         k_points = self.get_k_points()
         energy = float(self.energy_editor.text())
         max_iterations = int(self.iterations_editor.text())
+
+        # First, put ecutwfc and k_points in input file
+        qe_io.modify_ecut(input_file, energy)
+        qe_io.modify_k_points(input_file, k_points)
 
         self.thread = QEIterateThread(self, input_file, k_points, energy, max_iterations)
         self.thread.progress_signal.connect(self.message)
@@ -217,7 +230,36 @@ class ArchiveWindow(QMainWindow):
         self.plot_energies(self.thread.ecutwfc_list, self.thread.energy_list)
 
     def validate_inputs(self):
-        return all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip() and self.iterations_editor.text().strip()
+        message = ''
+        if not (all(editor.text().strip() for editor in self.k_points_editors) and self.energy_editor.text().strip() and self.iterations_editor.text().strip()):
+            message = 'Please fill out all fields for K points, cutting energy and number of iterations.'
+            return message
+        try:
+            k_points = self.get_k_points()
+            for k_point in k_points:
+                k_point[0] = int(k_point[0])
+                k_point[1] = int(k_point[1])
+                k_point[2] = int(k_point[2])
+
+            energy_cutoff = float(self.energy_editor.text())
+            max_iterations = int(self.iterations_editor.text())
+        except:
+            message = 'K Points need to be integer number\nKinetic energy cutoff need to be float number\nIterations need to be integer number'
+            return message
+        
+        if any(k_point >= 10 for k_point in k_points[0]) or any(k_point < 0 for k_point in k_points[0]):
+            message += 'nk1, nk2, nk3 in K_POINTS they need to be more than 0 and less than 10\n'
+        
+        if any(k_point > 1 for k_point in k_points[1]) or any(k_point < 0 for k_point in k_points[1]):
+            message += 'sk1, sk2, sk3 in K_POINTS they need to be 0 or 1\n'
+        
+        if energy_cutoff < 0 or energy_cutoff >= 200:
+            message += 'Energy cutoff need to be more than 0 and less than 200\n'
+        
+        if max_iterations < 0 or max_iterations >= 30:
+            message += 'Iterations need to be more than 0 and less than 30\n'
+
+        return message
 
     def get_k_points(self):
         k_points = []
@@ -228,12 +270,12 @@ class ArchiveWindow(QMainWindow):
     def run_qe(self, input_file, output_file):
         run = RunQuantumEspresso()
         run.run_qe_process(input_file, output_file)
-        self.message(f"Proceso QE ejecutado. Archivo de salida: {output_file}")
+        self.message(f"Quantum ESPRESSO process executed. Output file: {output_file}")
 
     def plot_energies(self, ecutwfc_list, energy_list):
         plt.figure(figsize=(10, 6))
         plt.plot(ecutwfc_list, energy_list, marker='o')
-        plt.xlabel('Cut Energy (ecutwfc)')
+        plt.xlabel('Kinetic energy cutoff (Ry)')
         plt.ylabel('Total Energy (Ry)')
         plt.title('Total Energy vs Cut Energy')
         plt.grid(True)

@@ -9,7 +9,7 @@
     celldm(1) = 2.46, ! Longitud de celda en Ångström
     nat = 18,
     ntyp = 1,
-    ecutwfc = 45.0,
+ ecutwfc = 100.0,
     ecutrho = 360.0
 /
 &electrons
@@ -42,4 +42,4 @@ ATOMIC_POSITIONS {alat}
     C 0.000000 4.920000 0.000000
     C 0.666667 5.253333 0.000000
 K_POINTS automatic
-    6 6 1 0 0 0
+  8 8 1   0 0 0   

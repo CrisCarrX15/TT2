@@ -10,7 +10,7 @@
     celldm(3) = 4.0,   ! Separación entre capas en unidades de celldm(1)
     nat = 12,
     ntyp = 1,
-  ecutwfc = 45.0,
+  ecutwfc = 80.0,
     ecutrho = 320.0
 /
 &electrons
@@ -35,4 +35,4 @@ ATOMIC_POSITIONS {alat}
     C 2.666667 3.333333 0.000000
     C 3.333333 3.666667 0.000000
 K_POINTS automatic
-  6 6 1   0 0 0   
+  8 8 1   0 0 0   

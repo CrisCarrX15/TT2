@@ -185,7 +185,8 @@ class QEInputValidator:
 
         return error_message
     
-    
+    #def validate_k_points(self, k_points):
+
 def validate_all_entries(in_parameters):
     error_message = ''
     error_message += validate_required_fields(in_parameters, {'CONTROL' : CONTROL_DICT, 'SYSTEM' : SYSTEM_DICT, 'ELECTRONS' : ELECTRONS_DICT, 'IONS' : IONS_DICT, 'RISM' : RISM_DICT})
