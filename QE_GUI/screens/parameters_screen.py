@@ -15,7 +15,7 @@
 from PySide2.QtWidgets import QHBoxLayout, QMainWindow, QComboBox, QVBoxLayout, QPushButton, QScrollArea, QSizePolicy, QTabWidget, QWidget, QLineEdit, QLabel, QDialog,QGridLayout
 from PySide2.QtGui import QColor, QFont
 from functools import partial
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QThread, Signal
 from PySide2.QtWidgets import QTextEdit
 from screens.DialogMessage import DialogMessage
 
@@ -31,6 +31,41 @@ from file_operations.project import save_data, load_data, find_max_rows
 from file_operations.run_quantum_espresso import RunQuantumEspresso
 from file_operations.input_validation import QEInputValidator
 from visualization.graphic_3d import graph_in_file
+from screens.LoadingScreen import LoadingDialog
+
+class RunQESingleThread(QThread):
+    finished_signal = Signal(str)
+
+    def __init__(self, input_file, output_file, parent=None):
+        super().__init__(parent)
+        self.input_file = input_file
+        self.output_file = output_file
+
+    def run(self):
+        try:
+            run = RunQuantumEspresso()
+            run.run_qe_process(self.input_file, self.output_file)
+            self.finished_signal.emit("Quantum ESPRESSO process executed successfully.")
+        except Exception as e:
+            self.finished_signal.emit(f"Error: {str(e)}")
+
+class RunQECoresThread(QThread):
+    finished_signal = Signal(str)
+
+    def __init__(self, input_file, output_file, parent=None):
+        super().__init__(parent)
+        self.input_file = input_file
+        self.output_file = output_file
+
+    def run(self):
+        try:
+            run = RunQuantumEspresso()
+            run.run_qe_cores(self.input_file, self.output_file)
+            self.finished_signal.emit("Quantum ESPRESSO process executed successfully.")
+        except Exception as e:
+            self.finished_signal.emit(f"Error: {str(e)}")
+
+
 
 class AppParametersStyle:
     @staticmethod
@@ -82,6 +117,7 @@ class ParametersWindow(QMainWindow):
         self.tab_rism_name = 'RISM'
         self.tab_input_name = 'ATOMIC_K_POINTS'
         self.tab_config_name = 'SETTINGS'
+        self.loading_dialog = LoadingDialog(self)
 
         self.atomic_positions_counter = 0
         self.atomic_species_counter = 0
@@ -401,39 +437,52 @@ class ParametersWindow(QMainWindow):
             self.show_windows_message(error_message, 'Error', '#DC3545')
         else:
             create_in_file(self.file_path, self.project_name, info_dict)
-            message = self.run_qe(config_info)
-            if message == 'Success':
-                self.show_windows_message(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#d8f8c0')
-            else:
-                self.show_windows_message(message, 'Error', '#ffcbca')
-        #dialog = DialogMessage(f'The {self.project_name}.in file was created and executed correctly', 'Success', '#28a745')
-        #dialog.exec_()
+            self.run_qe(config_info)
         
     def run_qe(self, config_info):
         try:
             message = 'Success'
-            run = RunQuantumEspresso()
+
+            input_file = f'{self.file_path}/{self.project_name}.in'
+            output_file = f'{self.file_path}/{self.project_name}.out'
+
+            self.loading_dialog.show() # show loading screen
+
             if config_info['performance'] == 'High':
-                run.run_qe_cores(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+                self.thread = RunQECoresThread(input_file, output_file)
             else:
-                run.run_qe_process(f'{self.file_path}/{self.project_name}.in', f'{self.file_path}/{self.project_name}.out')
+                self.thread = RunQESingleThread(input_file, output_file)
 
-            output_message = check_qe_output(f'{self.file_path}/{self.project_name}.out')
-            if output_message != 'JOBE DONE':
-                message = output_message
+            self.thread.finished_signal.connect(lambda msg: self.on_qe_finished(msg, config_info))
+            self.thread.start()
 
-            if config_info['graph_3D'] == 'Yes' and output_message == 'JOB DONE':
-                atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
-                atomic_positions_out = extract_atomic_positions_out(f'{self.file_path}/{self.project_name}.out')
-                create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
-                create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
-
-                graph_in_file(f'{self.file_path}/{self.project_name}_in.xyz', f'{self.project_name}_in')
-                graph_in_file(f'{self.file_path}/{self.project_name}_out.xyz', f'{self.project_name}_out')
-                message = 'Success'
         except Exception as e:
             message = f'Something went wrong: {str(e)}'
-        return message
+            self.show_windows_message(message, "Error", "#ffcbca")
+
+    def on_qe_finished(self, message, config_info):
+        self.loading_dialog.hide()
+
+        output_message = check_qe_output(f'{self.file_path}/{self.project_name}.out')
+        message = 'Success' if output_message == 'JOB DONE' else output_message
+
+        if output_message != 'JOB DONE':
+            message = output_message
+
+        if config_info['graph_3D'] == 'Yes' and output_message == 'JOB DONE':
+            atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
+            atomic_positions_out = extract_atomic_positions_out(f'{self.file_path}/{self.project_name}.out')
+            create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
+            create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
+            graph_in_file(f'{self.file_path}/{self.project_name}_in.xyz', f'{self.project_name}_in')
+            graph_in_file(f'{self.file_path}/{self.project_name}_out.xyz', f'{self.project_name}_out')
+            message = 'Success'
+
+        if "Success" in message:
+            self.show_windows_message(message, "Success", "#d8f8c0")
+        else:
+            self.show_windows_message(message, "Error", "#ffcbca")
+
 
     def get_tab_info(self, tab_index):
         info = {}
