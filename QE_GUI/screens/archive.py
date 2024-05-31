@@ -24,6 +24,19 @@ import matplotlib.pyplot as plt
 import file_operations.quantum_espresso_io as qe_io
 from file_operations.run_quantum_espresso import RunQuantumEspresso
 
+class LoadingDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Loading")
+        self.setWindowModality(Qt.ApplicationModal)  # Lock the entire app
+        # Adjust window flags to remove close button
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
+
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Running Quantum ESPRESSO, please wait..."))
+        self.setLayout(layout)
+        self.setFixedSize(400, 100)
+
 class QEIterateThread(QThread):
     progress_signal = Signal(str)
     finished_signal = Signal(str)
@@ -101,7 +114,6 @@ class RunQESingleThread(QThread):
             self.progress_signal.emit(f"Error: {str(e)}")
             traceback.print_exc()
 
-
 class ArchiveWindow(QMainWindow):
     message_signal = Signal(str)
 
@@ -111,6 +123,9 @@ class ArchiveWindow(QMainWindow):
         # Configurar la ventana principal
         self.setGeometry(100, 100, 1200, 800)
         self.setWindowTitle('Iteration Files')
+
+        # Crear una instancia de LoadingDialog
+        self.loading_dialog = LoadingDialog(self)
 
         # Crear un layout vertical
         layout = QVBoxLayout()
@@ -220,20 +235,30 @@ class ArchiveWindow(QMainWindow):
             self.message(message)
             return
 
+        # Mostrar el diálogo de carga
+        self.loading_dialog.show()
+
         qe_io.modify_ecut(input_file, float(self.energy_editor.text()))
         qe_io.modify_k_points(input_file, self.get_k_points())
 
         self.thread = RunQESingleThread(input_file)
         self.thread.progress_signal.connect(self.message)
-        self.thread.finished_signal.connect(self.message)
+        self.thread.finished_signal.connect(self.handle_run_single_finished)
         self.thread.start()
 
+    def handle_run_single_finished(self, result):
+        # Ocultar el diálogo de carga
+        self.loading_dialog.hide()
+        self.message(result)
 
     def iterate_qe(self, input_file):
         message = self.validate_inputs()
         if message != '':
             self.message(message)
             return
+
+        # Mostrar el diálogo de carga
+        self.loading_dialog.show()
 
         k_points = self.get_k_points()
         energy = float(self.energy_editor.text())
@@ -244,11 +269,12 @@ class ArchiveWindow(QMainWindow):
 
         self.thread = QEIterateThread(self, input_file, k_points, energy, max_iterations)
         self.thread.progress_signal.connect(self.message)
-        self.thread.finished_signal.connect(self.handle_thread_finished)
+        self.thread.finished_signal.connect(self.handle_iterate_finished)
         self.thread.start()
 
-
-    def handle_thread_finished(self, result):
+    def handle_iterate_finished(self, result):
+        # Ocultar el diálogo de carga
+        self.loading_dialog.hide()
         self.message(result)
         self.plot_energies(self.thread.ecutwfc_list, self.thread.energy_list)
 
@@ -328,3 +354,4 @@ def run_archive():
 if __name__ == "__main__":
     app = run_archive()
     sys.exit(app.exec_())
+
