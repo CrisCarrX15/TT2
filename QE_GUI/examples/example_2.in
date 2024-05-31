@@ -1,38 +1,38 @@
 &control
     calculation = 'scf'
-    prefix = 'grafeno_12',
-    pseudo_dir = './examples/pseudos',
+    prefix = 'grafeno_2'
+    pseudo_dir = './examples/pseudos'
     outdir = './examples/output/example_2'
 /
 &system
-    ibrav = 4,
-    celldm(1) = 2.46,  ! Longitud de celda en Ångström
-    celldm(3) = 4.0,   ! Separación entre capas en unidades de celldm(1)
-    nat = 12,
-    ntyp = 1,
-  ecutwfc = 80.0,
+    ibrav = 0
+    nat = 12
+    ntyp = 1
+  ecutwfc = 70.0,
     ecutrho = 320.0
 /
 &electrons
-    conv_thr = 1.0d-8,
+    conv_thr = 1.0d-8
     mixing_beta = 0.7
-/
-&ions
 /
 ATOMIC_SPECIES
     C  12.0107  C.pz-vbc.UPF
-ATOMIC_POSITIONS {alat}
+ATOMIC_POSITIONS {angstrom}
     C 0.000000 0.000000 0.000000
-    C 0.666667 0.333333 0.000000
-    C 1.333333 0.666667 0.000000
-    C 2.000000 1.000000 0.000000
-    C 2.666667 1.333333 0.000000
-    C 3.333333 1.666667 0.000000
-    C 0.000000 2.000000 0.000000
-    C 0.666667 2.333333 0.000000
-    C 1.333333 2.666667 0.000000
-    C 2.000000 3.000000 0.000000
-    C 2.666667 3.333333 0.000000
-    C 3.333333 3.666667 0.000000
+    C 1.230000 0.710000 0.000000
+    C 2.460000 0.000000 0.000000
+    C 3.690000 0.710000 0.000000
+    C 4.920000 0.000000 0.000000
+    C 6.150000 0.710000 0.000000
+    C 1.230000 2.130000 0.000000
+    C 2.460000 2.840000 0.000000
+    C 3.690000 2.130000 0.000000
+    C 4.920000 2.840000 0.000000
+    C 6.150000 2.130000 0.000000
+    C 7.380000 2.840000 0.000000
+CELL_PARAMETERS {angstrom}
+   7.380000  0.000000  0.000000
+   0.000000  3.550000  0.000000
+   0.000000  0.000000  10.000000
 K_POINTS automatic
-  8 8 1   0 0 0   
+  6 6 1   0 0 0   
