@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial</title>
+    <link rel="icon" type="image/png" href="./images/GUI.jpeg">
+    <style>
+        body {
+            background-color: #879EC5;
+            color: #000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 18px; /* Increase text size */
+        }
+        .header {
+            position: relative;
+            text-align: center;
+            padding: 20px;
+        }
+        .header img {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 100px;
+            height: auto;
+        }
+        .header h1 {
+            font-size: 2.5em; /* Increase main title size */
+        }
+        .content {
+            padding: 20px;
+        }
+        .content h1 {
+            font-size: 2em; /* Increase subtitle size */
+        }
+        .content h2 {
+            font-size: 1.75em; /* Increase second subtitle size */
+        }
+        .content h3 {
+            font-size: 1.5em; /* Increase third subtitle size */
+        }
+        .content img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .content p {
+            font-size: 1.25em; /* Increase paragraph text size */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Tutorial</h1>
+        <img src="./images/GUI.jpeg" alt="GUI">
+    </div>
+    <div class="content">
+        <h1>Quantum Graphene Tutorial</h1>
+        <p>Welcome to the Quantum Graphene tutorial. Here you will learn how to use the application step by step.</p>
+        <p>This section of the GUI covers the main screens' functionality, such as New Calculation and Project.</p>
+        <h2>Getting Started</h2>
+        <p>To get started, you can create a new calculation or open an existing project from the main menu.</p>
+        <p>In the start menu, you can select the most recently opened or used project, which will open with the previously selected parameters.</p>
+        <img src="./images/main_1.png" alt="Main Screen">
+        <h2>Create a New Calculation</h2>
+        <p>Click "NEW CALCULATION" to start a new calculation. You will be prompted to enter the necessary parameters.</p>
+        <img src="./images/New_Calculation_1.png" alt="New Calculation">
+        <p>In this section, there are three graphene schemes that can be used to perform the calculations needed. Clicking on one of the examples will display its .in file.</p>
+        <img src="./images/archive_in.png" alt="Input File">
+        <h3>K Points, Cut-off Energy, and Iterations</h3>
+        <p>The user can add K points to any example, as well as the cut-off energy and the number of iterations.</p>
+        <img src="./images/K_Points.png" alt="K Points">
+        <p><b>NOTE: If you try to run one of the examples without filling in the K points, cut-off energy, or iterations fields, a message will appear asking the user to fill in those fields.</b></p>
+        <img src="./images/K_Points_error.png" alt="K Points Error">
+        <p>With this information loaded, you can start Quantum ESPRESSO for any of the selected examples.</p>
+        <img src="./images/Run_QE.png" alt="Run QE">
+        <p>Once the output file (.out) of the example has been created, you can start iterating the examples. At the end of the iteration, you will observe the plot of cut-off energy vs. the total energy of the system.</p>
+        <img src="./images/Iterate.png" alt="Iterate">
+        <h2>Open a Project</h2>
+        <p>Click "PROJECT" to open a saved project. Select the project file you want to load.</p>
+        <img src="./images/window_para.png" alt="Project Window">
+        <p>Before opening the project window, a tab will appear with two options: "CREATE" to create a new project and "OPEN" to open an existing project. It is worth mentioning that the GUI generates a .qg file that is specific to this project.</p>
+        <img src="./images/create_proy.png" alt="Create Project">
+        <p>When creating the project, the user can choose where to save it; it can be in any folder.</p>
+        <img src="./images/Carpeta.png" alt="Folder">
+        <p>Once the folder where the project was uploaded is selected, the parameter screen will appear where the user can fill them in.</p>
+        <img src="./images/parameters_1.png" alt="Parameters Screen">
+        <p><b>NOTE: Some parameters are lighter in color than others. In those cases, if not filled in, Quantum ESPRESSO will not load.</b></p>
+        <img src="./images/parameters_error.png" alt="Parameters Error">
+        <p>The parameters that the user fills out are divided into 7 tabs. Each parameter has a brief description of what it does. Additionally, if you want to know more about a parameter, you can get information with the "more" button.</p>
+        <img src="./images/more.png" alt="More Button">
+        <p>After filling in all the necessary parameters, the project can be saved with all its loaded parameters. If the program is closed, the data will be saved in the last parameter where the user stopped adding.</p>
+        <img src="./images/save_qg.png" alt="Save Project">
+        <p>With the file saved, the program can execute Quantum ESPRESSO to process the file.</p>
+        <img src="./images/QE_para.png" alt="QE Parameters">
+        <p>When Quantum ESPRESSO is executed, 3 files are generated: input file, output file, and the xyz file.</p>
+        <img src="./images/archives.png" alt="Generated Files">
+        <p>With this visualized, the program shows the graphs of the .in and .out files to compare the molecule schematics.</p>
+        <img src="./images/model.png" alt="Model">
+        <p>Finally, the user can view the file they want in case they need to change or modify something else.</p>
+        <img src="./images/muestra_in.png" alt="View Input File">
+        <h2>More Information</h2>
+        <p>For more details on using the application, refer to the official documentation or contact technical support.</p>
+    
+        <!-- Add more content as needed -->
+    </div>
+</body>
+</html>
