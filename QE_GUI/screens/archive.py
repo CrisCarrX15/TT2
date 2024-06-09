@@ -167,6 +167,7 @@ class ArchiveWindow(QMainWindow):
         self.energy_label = QLabel("Kinetic energy cutoff (Ry):")
         controls_layout.addWidget(self.energy_label)
         self.energy_editor = QLineEdit()
+        self.energy_editor.setFixedWidth(450) 
         self.energy_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
         controls_layout.addWidget(self.energy_editor)
 
@@ -174,6 +175,7 @@ class ArchiveWindow(QMainWindow):
         self.iterations_label = QLabel("Number of Iterations:")
         controls_layout.addWidget(self.iterations_label)
         self.iterations_editor = QLineEdit()
+        self.iterations_editor.setFixedWidth(450) 
         self.iterations_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
         controls_layout.addWidget(self.iterations_editor)
 
