@@ -302,12 +302,14 @@ class ParametersWindow(QMainWindow):
             input_type = config.get('input_type', None)
 
             if input_type is None:
+                # The default input is a TextArea
                 text_edit = QLineEdit()
                 text_edit.setFixedWidth(450) # Modify QLineEdit width size
                 text_edit.setStyleSheet("background-color: white")
                 layout.addWidget(text_edit)
                 widget_dict[key] = text_edit
             elif input_type == 'select_multiple':
+                # If the parameter is multiple choice, the options are added
                 combobox = QComboBox()
                 combobox.setFixedWidth(450)
                 combobox.setFont(QFont("Arial", 12))
@@ -437,9 +439,9 @@ class ParametersWindow(QMainWindow):
             self.show_windows_message(error_message, 'Error', '#DC3545')
         else:
             create_in_file(self.file_path, self.project_name, info_dict)
-            self.run_qe(config_info)
+            self.run_qe(config_info, control_info['calculation'])
         
-    def run_qe(self, config_info):
+    def run_qe(self, config_info, calculation):
         try:
             message = 'Success'
 
@@ -453,14 +455,14 @@ class ParametersWindow(QMainWindow):
             else:
                 self.thread = RunQESingleThread(input_file, output_file)
 
-            self.thread.finished_signal.connect(lambda msg: self.on_qe_finished(msg, config_info))
+            self.thread.finished_signal.connect(lambda msg: self.on_qe_finished(msg, config_info, calculation))
             self.thread.start()
 
         except Exception as e:
             message = f'Something went wrong: {str(e)}'
             self.show_windows_message(message, "Error", "#ffcbca")
 
-    def on_qe_finished(self, message, config_info):
+    def on_qe_finished(self, message, config_info, calculation):
         self.loading_dialog.hide()
 
         output_message = check_qe_output(f'{self.file_path}/{self.project_name}.out')
@@ -471,7 +473,7 @@ class ParametersWindow(QMainWindow):
 
         if config_info['graph_3D'] == 'Yes' and output_message == 'JOB DONE':
             atomic_positions_in = extract_atomic_positions_in(f'{self.file_path}/{self.project_name}.in')
-            atomic_positions_out = extract_atomic_positions_out(f'{self.file_path}/{self.project_name}.out')
+            atomic_positions_out = extract_atomic_positions_out(f'{self.file_path}/{self.project_name}.out', calculation)
             create_xyz_file(atomic_positions_in, f'{self.file_path}/{self.project_name}_in.xyz')
             create_xyz_file(atomic_positions_out, f'{self.file_path}/{self.project_name}_out.xyz')
             graph_in_file(f'{self.file_path}/{self.project_name}_in.xyz', f'{self.project_name}_in')

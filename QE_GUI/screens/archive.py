@@ -157,27 +157,27 @@ class ArchiveWindow(QMainWindow):
         controls_layout.addWidget(self.k_points_label)
 
         self.grid_layout = QGridLayout()
-        self.k_points_editors = [QLineEdit() for _ in range(6)]  # Fila de 6 QLineEdit
+        self.k_points_editors = [QLineEdit() for _ in range(6)]
         for i in range(6):
-            self.k_points_editors[i].setStyleSheet("background-color: white")  # Establecer fondo blanco
+            self.k_points_editors[i].setStyleSheet("background-color: white")
             self.grid_layout.addWidget(self.k_points_editors[i], 0, i)
         controls_layout.addLayout(self.grid_layout)
 
-        # Crear el campo para la energía de corte
+        # Create the field for cutting energy
         self.energy_label = QLabel("Kinetic energy cutoff (Ry):")
         controls_layout.addWidget(self.energy_label)
         self.energy_editor = QLineEdit()
-        self.energy_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
+        self.energy_editor.setStyleSheet("background-color: white")
         controls_layout.addWidget(self.energy_editor)
 
-        # Crear el campo para el número de iteraciones
+        # Create the field for the number of iterations
         self.iterations_label = QLabel("Number of Iterations:")
         controls_layout.addWidget(self.iterations_label)
         self.iterations_editor = QLineEdit()
-        self.iterations_editor.setStyleSheet("background-color: white")  # Establecer fondo blanco
+        self.iterations_editor.setStyleSheet("background-color: white")
         controls_layout.addWidget(self.iterations_editor)
 
-        # Agregar botones para cargar archivos .in con imágenes y las opciones adicionales
+        # Add buttons to upload .in files with images and additional options
         file_buttons_layout = QHBoxLayout()
 
         self.create_example_button(file_buttons_layout, "./screens/images/grafeno_1.png", "./examples/example_1.in")

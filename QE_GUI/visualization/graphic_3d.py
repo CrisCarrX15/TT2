@@ -24,9 +24,6 @@ def graph_in_file(xyz_file, title):
     z = data[:, 3].astype(float)
     atom_type = data[:, 0]
 
-    # Create a dictionary to map atom types to colors
-    #atom_color_mapping = {'H': 'red', 'C': 'black', 'O': 'blue', 'N': 'green'}
-
     # Get colors based on atom type
     colors = [atom_color_mapping[atom] for atom in atom_type]
 
@@ -36,9 +33,7 @@ def graph_in_file(xyz_file, title):
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot the points in 3D with colors according to the type of atom
-    scatter = ax.scatter(x, y, z, c=colors, s=50, label='Átomos')
-
-    #atoms_info = {}
+    scatter = ax.scatter(x, y, z, c=colors, s=50, label='Atoms')
 
     # Function to draw bonds between atoms
     def draw_bonds(ax, x, y, z):
@@ -48,10 +43,9 @@ def graph_in_file(xyz_file, title):
                 # Calculate distance between atoms
                 dist = np.sqrt((x[i] - x[j]) ** 2 + (y[i] - y[j]) ** 2 + (z[i] - z[j]) ** 2)
                 # Draw a line if the distance is less than a threshold
-                if dist < 2.0:  # Adjust this threshold as needed
+                if dist < 2.0:
                     ax.plot([x[i], x[j]], [y[i], y[j]], [z[i], z[j]], color='gray', alpha=0.5)
 
-    # Call the function to draw bonds
     draw_bonds(ax, x, y, z)
 
     # Create custom legends for atom type and color that appear in the data
@@ -84,4 +78,4 @@ def graph_in_file(xyz_file, title):
     plt.show()
 
 
-#graph_in_file('./33.xyz', 'graphene')
+#graph_in_file('./atom3.xyz', 'graphene')

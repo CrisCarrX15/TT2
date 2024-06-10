@@ -118,32 +118,56 @@ def extract_atomic_positions_in(filename):
 
 
 # ========== EXTRACT ATOMIC_POSITIONS IN .OUT FILE ==========
-def extract_atomic_positions_out(filename):
+def extract_atomic_positions_out(filename, calculation):
     with open(filename, 'r') as file:
         lines = file.readlines()
 
     atomic_positions = []
-    in_atomic_positions = False
 
-    for line in lines:
-        if 'positions (alat units)' in line:
-            in_atomic_positions = True
-            continue  # Saltar la línea de cabecera
+    if calculation in ['scf', 'nscf', 'bands']:
+        in_atomic_positions = False
 
-        if in_atomic_positions:
-            #print(f'Analizando la linea {line}')
-            if 'tau(' in line:
+        for line in lines:
+            if 'positions (alat units)' in line:
+                in_atomic_positions = True
+                continue  # Saltar la línea de cabecera
+
+            if in_atomic_positions:
+                if 'tau(' in line:
+                    parts = line.split()
+                    atom = parts[1]
+                    x = parts[-4].strip('()')
+                    y = parts[-3].strip('()')
+                    z = parts[-2].strip('()')
+                    atomic_positions.append(f"{atom} {x} {y} {z}")
+                else:
+                    break  # Salir si no se encuentra 'tau('
+
+    elif calculation == 'relax':
+        in_final_coordinates = False
+
+        for line in lines:
+            if 'Begin final coordinates' in line:
+                in_final_coordinates = True
+                continue
+
+            if in_final_coordinates:
+                if 'ATOMIC_POSITIONS (alat)' in line:
+                    continue  # Saltar la línea de cabecera
+
+                if 'End final coordinates' in line:
+                    break  # Salir cuando se encuentra el final de las coordenadas
+
                 parts = line.split()
-                atom = parts[1]
-                x = parts[-4].strip('()')
-                y = parts[-3].strip('()')
-                z = parts[-2].strip('()')
-                #print(f"{atom} {x} {y} {z}")
-                atomic_positions.append(f"{atom} {x} {y} {z}")
-            else:
-                break  # Salir si no se encuentra 'tau('
+                if len(parts) == 4:
+                    atom = parts[0]
+                    x = parts[1]
+                    y = parts[2]
+                    z = parts[3]
+                    atomic_positions.append(f"{atom} {x} {y} {z}")
 
     return atomic_positions
+
 
 # ========== CREATE .XYZ FILE ==========
 def create_xyz_file(atomic_positions, output_filename, description="Molecula"):
@@ -214,7 +238,12 @@ def create_in_file(file_path, filename, parameters):
                             if is_real_number(value) or is_integer(value):
                                 f.write(f"\t{param} = {value},\n")
                             else:
-                                f.write(f"\t{param} = \'{value}\',\n")
+                                if param in ['pseudo_dir', 'outdir']:
+                                    if './' in value:
+                                        dir = value.replace('./', f'{file_path}/')
+                                        f.write(f"\t{param} = \'{dir}\',\n")
+                                else:
+                                    f.write(f"\t{param} = \'{value}\',\n")
                     f.write("/\n\n")
 
 # ========== FIND ERROR OR JOB DONE IN .OUT FILE ==========

@@ -237,6 +237,22 @@ SYSTEM_DICT = {'ibrav': {'description': 'Bravais lattice type',
              'info': ' kinetic energy cutoff (Ry) for wavefunctions }',
              'status': 'REQUIRED',
              'type': 'REAL'},
+ 'ecutrho': {'default': '4 * @ref ecutwfc',
+             'description': 'Charge density cutoff energy',
+             'info': ' Kinetic energy cutoff (Ry) for charge density and '
+                     'potential For norm-conserving pseudopotential you should '
+                     'stick to the default value, you can reduce it by a '
+                     'little but it will introduce noise especially on forces '
+                     'and stress. If there are ultrasoft PP, a larger value '
+                     'than the default is often desirable (ecutrho = 8 to 12 '
+                     'times @ref ecutwfc, typically). PAW datasets can often '
+                     'be used at 4*@ref ecutwfc, but it depends on the shape '
+                     'of augmentation charge: testing is mandatory. The use of '
+                     'gradient-corrected functional, especially in cells with '
+                     'vacuum, or for pseudopotential without non-linear core '
+                     'correction, usually requires an higher values of ecutrho '
+                     'to be accurately converged. }',
+             'type': 'REAL'},
  'ace': {'default': 'true',
          'description': 'Adaptive coordinate exchange',
          'info': ' Use Adaptively Compressed Exchange operator as in Lin Lin, '
@@ -349,22 +365,6 @@ SYSTEM_DICT = {'ibrav': {'description': 'Bravais lattice type',
                       'with care, especially in metals where it may give raise '
                       'to instabilities. }',
               'type': 'REAL'},
- 'ecutrho': {'default': '4 * @ref ecutwfc',
-             'description': 'Charge density cutoff energy',
-             'info': ' Kinetic energy cutoff (Ry) for charge density and '
-                     'potential For norm-conserving pseudopotential you should '
-                     'stick to the default value, you can reduce it by a '
-                     'little but it will introduce noise especially on forces '
-                     'and stress. If there are ultrasoft PP, a larger value '
-                     'than the default is often desirable (ecutrho = 8 to 12 '
-                     'times @ref ecutwfc, typically). PAW datasets can often '
-                     'be used at 4*@ref ecutwfc, but it depends on the shape '
-                     'of augmentation charge: testing is mandatory. The use of '
-                     'gradient-corrected functional, especially in cells with '
-                     'vacuum, or for pseudopotential without non-linear core '
-                     'correction, usually requires an higher values of ecutrho '
-                     'to be accurately converged. }',
-             'type': 'REAL'},
  'ecutvcut': {'default': '0.0 Ry',
               'description': 'Cut-off for vacuum',
               'info': ' Reciprocal space cutoff for correcting Coulomb '
