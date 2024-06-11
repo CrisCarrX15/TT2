@@ -14,6 +14,7 @@
 
 
 import os
+import webbrowser
 from PySide2.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QListWidget, QListWidgetItem, QFileDialog, QLineEdit, QPushButton, QDialog
 from PySide2.QtGui import QPixmap, QColor, QIcon
 from PySide2.QtCore import Qt, QSize
@@ -225,7 +226,8 @@ class WelcomeWindow(QMainWindow):
                 print(f"Contents of {item.text()}:\n{content}")
 
     def tutorial_clicked(self, event):
-        print("Tutorial button clicked")
+        tutorial_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tutorial.html")
+        webbrowser.open_new_tab(tutorial_path)
 
     def nuevo_calculo(self, event):
         self.archive = run_archive()
@@ -244,3 +246,4 @@ def run_main():
 
 if __name__ == '__main__':
     run_main()
+
