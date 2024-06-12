@@ -1,4 +1,6 @@
 /home/marco/C.qg
-/home/marco/graphene.qg
 /home/marco/hydrogen.qg
 /home/marco/pruebas_QE/graphene.qg
+/home/marco/pruebas_QE/graphene_1/graphene_1.qg
+/home/marco/pruebas_QE/C.qg
+/home/marco/pruebas_QE/graphene_1/graphene_2.qg

@@ -410,7 +410,7 @@ class ParametersWindow(QMainWindow):
         info_dict[self.tab_config_name] = config_info
 
         save_data(self.file_path, self.project_name, info_dict)
-        self.show_windows_message(f'The {self.project_name}.qj file was saved successfully', 'Success', '#d8f8c0')
+        self.show_windows_message(f'The {self.project_name}.qg file was saved successfully', 'Success', '#d8f8c0')
 
     def create_and_run_infile(self):
         control_info = self.get_tab_info(self.tab_control_name)
@@ -434,6 +434,8 @@ class ParametersWindow(QMainWindow):
         error_message = ''
         error_message += validation.validate_control()
         error_message += validation.validate_system()
+        error_message += validation.validate_ions()
+        error_message += validation.validate_atoms_k_points()
 
         if error_message != '':
             self.show_windows_message(error_message, 'Error', '#DC3545')

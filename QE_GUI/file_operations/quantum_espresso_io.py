@@ -38,8 +38,6 @@ def modify_k_points(filename, k_points):
     with open(filename, 'r') as file:
         lines = file.readlines()
     
-    print('Escribiendo puntos k...')
-    #print('Los k_points son: ', k_points)
     for i, line in enumerate(lines):
         if 'K_POINTS automatic' in line:
             k_points_str = '  '
@@ -170,7 +168,7 @@ def extract_atomic_positions_out(filename, calculation):
 
 
 # ========== CREATE .XYZ FILE ==========
-def create_xyz_file(atomic_positions, output_filename, description="Molecula"):
+def create_xyz_file(atomic_positions, output_filename, description="Molecule"):
     num_atoms = len(atomic_positions)
     with open(output_filename, 'w') as file:
         file.write(f"{num_atoms}\n")
@@ -186,15 +184,15 @@ def create_in_file(file_path, filename, parameters):
         for section, params in parameters.items():
             if section == 'ATOMIC_K_POINTS':
 
-                # Verificación para ATOMIC_SPECIES
+                # Verification for ATOMIC_SPECIES
                 write_atomic_species = any(param != '' for key, param in params.items() if key.startswith('atomic_species'))
 
-                # Verificación para ATOMIC_POSITIONS
+                # Verification for  ATOMIC_POSITIONS
                 write_atomic_positions = any(param != '' for key, param in params.items() if key.startswith('atomic_positions'))
 
                 write_k_points = all(param != '' for param in params.values() if param.startswith('K_POINTS'))
 
-                # Verificación para CELL_PARAMETERS
+                # Verification for CELL_PARAMETERS
                 write_cell_parameters = any(param != '' for key, param in params.items() if key.startswith('CELL_PARAMETERS'))
 
                 if write_atomic_species:
@@ -259,13 +257,13 @@ def check_qe_output(file_path):
         job_done = False
         
         for line in lines:
-            if "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" in line:
-                error_detected = True
+            if "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" in line:
+                error_detected = not error_detected
                 continue
-            if error_detected and "Error in routine" in line:
+            
+            if error_detected:
                 error_messages.append(line.strip())
-                error_detected = False
-                break
+                continue
             
             if "JOB DONE" in line:
                 job_done = True

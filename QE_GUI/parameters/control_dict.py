@@ -5,10 +5,7 @@ CONTROL_DICT = {'calculation': {'default': 'scf',
                  'options': ['scf',
                              'nscf',
                              'bands',
-                             'relax',
-                             #'md',
-                             #'vc-relax',
-                             #'vc-md'
+                             'relax'
                              ],
                  'type': 'CHARACTER',
                  'status': 'REQUIRED',

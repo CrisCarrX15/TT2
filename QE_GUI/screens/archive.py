@@ -53,9 +53,6 @@ class QEIterateThread(QThread):
         self.ecutwfc_list = []
 
     def run(self):
-        import file_operations.quantum_espresso_io as qe_io
-        from file_operations.run_quantum_espresso import RunQuantumEspresso
-
         converged = False
         previous_energy = None
         iteration = 0
@@ -120,26 +117,20 @@ class ArchiveWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Configurar la ventana principal
         self.setGeometry(100, 100, 1200, 800)
         self.setWindowTitle('Iteration Files')
 
-        # Crear una instancia de LoadingDialog
         self.loading_dialog = LoadingDialog(self)
 
-        # Crear un layout vertical
         layout = QVBoxLayout()
 
-        # Agregar una etiqueta con una imagen en la esquina
         imagen_path = './screens/images/GUI.jpeg'
         abs_imagen_path = os.path.abspath(imagen_path)
-        print(f"Ruta absoluta de la imagen: {abs_imagen_path}")  # Imprimir la ruta absoluta
+        print(f"Ruta absoluta de la imagen: {abs_imagen_path}")
         imagen_label = QLabel(self)
 
-        # Verificar que la imagen se cargue correctamente
         pixmap = QPixmap(abs_imagen_path)
         if not pixmap.isNull():
-            # Ajustar el tamaño de la imagen a más pequeña
             pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             imagen_label.setPixmap(pixmap)
         else:
@@ -148,11 +139,11 @@ class ArchiveWindow(QMainWindow):
         imagen_label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         layout.addWidget(imagen_label)
 
-        # Crear un widget para los controles
+        # Create a widget for controls
         controls_widget = QWidget()
         controls_layout = QVBoxLayout(controls_widget)
 
-        # Crear la fila para los puntos K
+        # Create the row for K points
         self.k_points_label = QLabel("K Points:")
         controls_layout.addWidget(self.k_points_label)
 
@@ -194,20 +185,18 @@ class ArchiveWindow(QMainWindow):
         self.text.setReadOnly(True)
         layout.addWidget(self.text)
 
-        # Crear un widget central y establecer el layout
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        # Establecer el color de fondo
-        color_fondo = QColor(135, 158, 197)
-        central_widget.setStyleSheet(f'background-color: {color_fondo.name()};')
+        background_color = QColor(135, 158, 197)
+        central_widget.setStyleSheet(f'background-color: {background_color.name()};')
 
     def message(self, s):
         self.text.appendPlainText(s)
 
     def create_example_button(self, layout, image_path, input_file):
-        # Botón de imagen para ver el archivo .in
+        # View .in file
         btn_image = QPushButton()
         btn_image.setIcon(QIcon(image_path))
         btn_image.setIconSize(QSize(200, 200))
@@ -215,12 +204,12 @@ class ArchiveWindow(QMainWindow):
         btn_image.clicked.connect(lambda: self.show_file_content(input_file))
         layout.addWidget(btn_image)
 
-        # Botón para ejecutar Quantum ESPRESSO una sola vez
+        # Run QE single time
         btn_run_qe = QPushButton("Run Quantum ESPRESSO")
         btn_run_qe.clicked.connect(lambda: self.run_single_qe(input_file))
         layout.addWidget(btn_run_qe)
 
-        # Botón para iterar Quantum ESPRESSO
+        # Run QE iterate times
         btn_iterate_qe = QPushButton("Iterate Quantum ESPRESSO")
         btn_iterate_qe.clicked.connect(lambda: self.iterate_qe(input_file))
         layout.addWidget(btn_iterate_qe)
@@ -237,7 +226,7 @@ class ArchiveWindow(QMainWindow):
             self.message(message)
             return
 
-        # Mostrar el diálogo de carga
+        # Loading Screen
         self.loading_dialog.show()
 
         qe_io.modify_ecut(input_file, float(self.energy_editor.text()))
@@ -249,7 +238,6 @@ class ArchiveWindow(QMainWindow):
         self.thread.start()
 
     def handle_run_single_finished(self, result):
-        # Ocultar el diálogo de carga
         self.loading_dialog.hide()
         self.message(result)
 
@@ -258,8 +246,7 @@ class ArchiveWindow(QMainWindow):
         if message != '':
             self.message(message)
             return
-
-        # Mostrar el diálogo de carga
+        
         self.loading_dialog.show()
 
         k_points = self.get_k_points()
@@ -275,7 +262,6 @@ class ArchiveWindow(QMainWindow):
         self.thread.start()
 
     def handle_iterate_finished(self, result):
-        # Ocultar el diálogo de carga
         self.loading_dialog.hide()
         self.message(result)
         self.plot_energies(self.thread.ecutwfc_list, self.thread.energy_list)

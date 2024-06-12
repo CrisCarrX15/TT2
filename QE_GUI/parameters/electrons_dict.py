@@ -97,29 +97,29 @@ ELECTRONS_DICT = {'adaptive_thr': {'default': '.FALSE',
                     'type': 'REAL'},
  'diagonalization': {'default': 'david',
                      'description': 'Diagonalization algorithm',
-                     'info': 'Available options are:'
-                        '\'david\' : Davidson iterative diagonalization with overlap matrix'
-                        '(default). Fast, may in some rare cases fail.'
-                        '\'cg\' : Conjugate-gradient-like band-by-band diagonalization.' 
-                        'MUCH slower than \'david\' but uses less memory and is (a little bit) more robust.'
-                        '\'ppcg\' : PPCG iterative diagonalization'
-                        '\'paro\', \'ParO\' : ParO iterative diagonalization'
-                        '\'rmm-davidson\', \'rmm-paro\' : RMM-DIIS iterative diagonalization.'
-                        'To stabilize the SCF loop'
-                        'RMM-DIIS is alternated with calls to Davidson or'
-                        'ParO  solvers depending on the string used.'
-                        'Other variables that can be used to tune the behavior of'
-                        'RMM-DIIS are:  diago_rmm_ndim and diago_rmm_conv',
+                     'info': 'Available options are:\n'
+                        '\'david\' : Davidson iterative diagonalization with overlap matrix\n'
+                        '(default). Fast, may in some rare cases fail.\n'
+                        '\'cg\' : Conjugate-gradient-like band-by-band diagonalization.\n' 
+                        'MUCH slower than \'david\' but uses less memory and is (a little bit) more robust.\n'
+                        '\'ppcg\' : PPCG iterative diagonalization\n'
+                        '\'paro\', \'ParO\' : ParO iterative diagonalization\n'
+                        '\'rmm-davidson\', \'rmm-paro\' : RMM-DIIS iterative diagonalization.\n'
+                        'To stabilize the SCF loop\n'
+                        'RMM-DIIS is alternated with calls to Davidson or\n'
+                        'ParO  solvers depending on the string used.\n'
+                        'Other variables that can be used to tune the behavior of\n'
+                        'RMM-DIIS are:  diago_rmm_ndim and diago_rmm_conv\n',
                      'input_type': 'select_multiple',
                      'options': ['david', 'cg','ppcg','paro','ParO','rmm-davidson','rmm-paro'],
                      'type': 'CHARACTER'},
- 'efield': {'default': '0.D0',
-            'description': 'Electric field amplitude',
-            'info': ' Amplitude of the finite electric field (in Ry a.u.; 1 '
-                    'a.u. = 36.3609*10^10 V/m). Used only if @ref '
-                    'lelfield==.TRUE. and if k-points (@ref K_POINTS card) are '
-                    'not automatic. ',
-            'type': 'REAL'},
+ #'efield': {'default': '0.D0',
+ #           'description': 'Electric field amplitude',
+ #           'info': ' Amplitude of the finite electric field (in Ry a.u.; 1 '
+ #                   'a.u. = 36.3609*10^10 V/m). Used only if @ref '
+ #                   'lelfield==.TRUE. and if k-points (@ref K_POINTS card) are '
+ #                   'not automatic. ',
+ #           'type': 'REAL'},
  'efield_phase': {'default': 'none',
                   'description': 'Phase of the electric field',
                   'info': '',
@@ -150,7 +150,15 @@ ELECTRONS_DICT = {'adaptive_thr': {'default': '.FALSE',
                      'type': 'INTEGER'},
  'mixing_mode': {'default': 'plain',
                  'description': 'Mixing mode',
-                 'info': '',
+                 'info': 'Available options are:\n'
+                '\'plain\' :\n'
+                'charge density Broyden mixing\n'
+                '\'TF\' :\n'
+                'as above, with simple Thomas-Fermi screening\n'
+                '(for highly homogeneous systems)\n'
+                '\'local-TF\' :\n'
+                'as above, with local-density-dependent TF screening\n'
+                '(for highly inhomogeneous systems)',
                  'input_type': 'select_multiple',
                  'options': ['plain', 'TF', 'local-TF'],
                  'type': 'CHARACTER'},

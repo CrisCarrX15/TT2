@@ -65,7 +65,7 @@ class QEInputValidator:
 
 
     # ===================================================================
-    # ================== validation of SYSTEM fields ===================
+    # ================== validation of SYSTEM fields ====================
     # ===================================================================
     def validate_system(self):
         system_input = self.input_data.get('SYSTEM', {})
@@ -83,6 +83,66 @@ class QEInputValidator:
             error_message += self.validate_system_other_parameters(system_input)
 
         return error_message
+
+    # ===================================================================
+    # =================== validation of IONS fields =====================
+    # ===================================================================
+    def validate_ions(self):
+        control_input = self.input_data.get('CONTROL', {})
+        ions_input = self.input_data.get('IONS', {})
+        error_message=''
+
+        if control_input.get('calculation','')=='relax':
+            is_empty = True
+            for key in ions_input:
+                if ions_input[key]!='':
+                    is_empty = False
+                    break
+            
+            if is_empty:
+                error_message+='To use @calculation=relax it is necessary to use the IONS values\n'
+        
+        return error_message
+    
+    # ===================================================================
+    # =================== validation of ATOMS fields ====================
+    # ===================================================================
+    def validate_atoms_k_points(self):
+        atoms_input=self.input_data.get('ATOMIC_K_POINTS', {})
+        #print('atoms_input:')
+        #print(atoms_input)
+        atoms = ['H', 'He', 'N', 'O', 'C', 'Cl']
+        error_message=''
+
+        for key in atoms_input:
+            if 'atomic_species' in key:
+                entrie_number = key.split('_')
+                if entrie_number[3] == '0':
+                    if not (atoms_input[key] in atoms):
+                        error_message+='The system only allows the following elements of the periodic table: C, H, 0, N, He, Cl in atomic_species\n'
+                elif entrie_number[3] == '1':
+                    if not is_real_number(atoms_input[key]):
+                        error_message += 'The second column of atomic_species must be a real number\n'
+            if 'atomic_positions' in key:
+                entrie_number = key.split('_')
+                if atoms_input[key]=='':
+                    error_message+='Please fill out all ATOMIC POSITIONS fields.\n'
+                elif entrie_number[3] == '0':
+                    if not (atoms_input[key] in atoms):
+                        error_message+='The system only allows the following elements of the periodic table: C, H, 0, N, He, Cl in atomic_positions\n'
+                elif entrie_number[3] == '1' or entrie_number[3] == '2' or entrie_number[3] == '3':
+                    if not is_real_number(atoms_input[key]):
+                        error_message+='ATOMIC POSITIONS fields must be real numbers\n'
+            if 'K_POINTS' in  key:
+                if not is_integer(atoms_input[key]):
+                    error_message+='All K_POINTS must be integers\n'
+            if 'CELL_PARAMETERS' in key:
+                if atoms_input[key]!='':
+                    if not is_real_number(atoms_input[key]):
+                        error_message+='All CELL_PARAMETERS must be numbers\n'
+        
+        return error_message
+
 
     def validate_celldm(self, system):
         error_message = ''
@@ -161,6 +221,28 @@ class QEInputValidator:
                 if system.get('nat', '')!='1' or system.get('occupations', '')!='from_input':
                     error_message += 'To use @one_atom_occupations is necessary @nat=1 and @occupations=\'from_input\'\n'
             
+            # starting_spin_angle
+            if system.get('starting_spin_angle', '')!='':
+                if system.get('lspinorb', '').lower() == '.false.':
+                    error_message += '@lspinorb is .FALSE. so @starting_spin_angle is not used\n'
+
+            # degauss_cond
+            if system.get('degauss_cond', '')!='':
+                if system.get('twochem', '').lower() != '.true.':
+                    error_message += 'To use @degauss_cond is necessary @twochem == .true.\n'
+            
+            # nelec_cond
+            if system.get('nelec_cond', '')!='':
+                if system.get('twochem', '').lower() != '.true.':
+                    error_message += 'To use @nelec_cond is necessary @twochem == .true.\n'
+            
+            # esm_bc, esm_w, esm_efield, esm_nfit, lgcscf
+            if system.get('esm_bc','')!='' or system.get('esm_w','')!='' or system.get('esm_efield','')!='' or system.get('esm_nfit','')!='' or system.get('lgcscf', '').lower()=='.true.':
+                if system.get('assume_isolated', '')!='esm':
+                    error_message += 'To use @esm_bc, @esm_w, @esm_efield, @esm_nfit is necessary @assume_isolated = esm\n'
+                if system.get('assume_isolated', '')!='esm' or (system.get('esm_bc', '')!='bc2' and system.get('esm_bc', '')!='bc3'):
+                    error_message += 'To use @lgcscf is necessary @assume_isolated=esm and @esm_bc=bc2 or bc3\n'
+
             # edir, emaxpos, eopreg
             if system.get('tefield', '').lower() != '.true.':
                 if system.get('edir', '') != '':
@@ -184,17 +266,6 @@ class QEInputValidator:
                             error_message += 'eopreg must be float.\n'
 
         return error_message
-    
-    #def validate_k_points(self, k_points):
-
-def validate_all_entries(in_parameters):
-    error_message = ''
-    error_message += validate_required_fields(in_parameters, {'CONTROL' : CONTROL_DICT, 'SYSTEM' : SYSTEM_DICT, 'ELECTRONS' : ELECTRONS_DICT, 'IONS' : IONS_DICT, 'RISM' : RISM_DICT})
-    error_message += validate_types(in_parameters, {'CONTROL' : CONTROL_DICT, 'SYSTEM' : SYSTEM_DICT, 'ELECTRONS' : ELECTRONS_DICT, 'IONS' : IONS_DICT, 'RISM' : RISM_DICT})
-    #error_message +=validate_rules(in_parameters)
-
-    return error_message
-
 
 
 # ===================================================================
@@ -253,24 +324,3 @@ def is_logical(string):
         return True
     else:
         return False
-
-
-# ===================================================================
-# ======================= VALIDATION OF RULES =======================
-# ===================================================================
-# En esta función se verificarán las reglas en los parámetros que aplique
-def validate_rules(in_parameters):
-    control_validation(in_parameters)
-    return
-
-
-
-# ==== VALIDATION OF RULES ====
-def control_validation(control):
-    error_message = ''
-
-    if (control['lfcp'] == '.TRUE.'):
-        if (control['calulation']!='relax') or (control['assume_isolated']!='esm') or (control['esm_bc']!='bc2' and control['esm_bc']!='bc3'):
-            error_message+='So that \'lfcp\' is .TRUE. does not meet the necessary requirements, see the More Info section for more information'
-
-    return error_message

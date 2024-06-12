@@ -8,7 +8,7 @@
     ibrav = 0
     nat = 12
     ntyp = 1
-  ecutwfc = 70.0,
+  ecutwfc = 45.0,
     ecutrho = 320.0
 /
 &electrons
@@ -35,4 +35,4 @@ CELL_PARAMETERS {angstrom}
    0.000000  3.550000  0.000000
    0.000000  0.000000  10.000000
 K_POINTS automatic
-  6 6 1   0 0 0   
+  1 1 1   0 0 0   

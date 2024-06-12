@@ -10,8 +10,6 @@ def graph_in_file(xyz_file, title):
         'C': 'black',     # Carbon
         'O': 'blue',      # Oxygen
         'N': 'green',     # Nitrogen
-        'S': 'yellow',    # Sulfur
-        'F': 'cyan',      # Fluorine
         'Cl': 'limegreen' # Chlorine
     }
 
@@ -60,11 +58,11 @@ def graph_in_file(xyz_file, title):
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
 
-    # Now set color to white (or whatever is "invisible")
+    # Now set color to white (invisible)
     ax.xaxis.pane.set_edgecolor('w')
     ax.yaxis.pane.set_edgecolor('w')
     ax.zaxis.pane.set_edgecolor('w')
-    # Bonus: To get rid of the grid as well:
+    
     ax.grid(False)
     ax.set_title(title)
 
@@ -77,5 +75,3 @@ def graph_in_file(xyz_file, title):
     # Show the figure
     plt.show()
 
-
-#graph_in_file('./atom3.xyz', 'graphene')

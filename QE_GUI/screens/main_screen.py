@@ -1,7 +1,6 @@
 ###################################################
 ##                                               ##
 ##    main_screen.py                             ##
-##    Modules to create, modify and delete       ##
 ##    Quantum ESPRESSO files                     ##
 ##                                               ##
 ##  Authors:                                     ##
@@ -86,7 +85,7 @@ class CreateOpenWindow(QMainWindow):
         filename = None
         if file_dialog.exec_():
             file_path = file_dialog.selectedFiles()[0]
-            print("Archivo seleccionado:", file_path)
+            #print("Archivo seleccionado:", file_path)
             self.close()
             return file_path
         self.close()
@@ -100,7 +99,7 @@ class CreateOpenWindow(QMainWindow):
         directory = None
         if folder_dialog.exec_():
             directory = folder_dialog.selectedFiles()[0]
-            print("Directorio seleccionado:", directory)
+            #print("Directorio seleccionado:", directory)
             return directory
         return directory
 

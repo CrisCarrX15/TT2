@@ -1,22 +1,28 @@
-IONS_DICT = {'ion_dynamics': {'description': 'Ion dynamics type',
+IONS_DICT = { 'ion_positions': {'default': 'default',
+                   'description': 'Ion positions',
+                   'info': 'Available options are:\n'
+                        '\'default\' :\n'
+                        'if restarting, use atomic positions read from the\n'
+                        'restart file; in all other cases, use atomic\n'
+                        'positions from standard input.\n'
+                        '\'from_input\' :\n'
+                        'read atomic positions from standard input, even if restarting.',
+                   'input_type': 'select_multiple',
+                   'options': ['default','from_input'],
+                   'type': 'CHARACTER'},
+'ion_dynamics': {'description': 'Ion dynamics type',
                   'info': ' Specify the type of ionic dynamics.  For different '
                           'type of calculation different possibilities are '
                           'allowed and different default values apply:  @b '
                           "CASE ( @ref calculation == 'relax' ) } @b CASE ( "
-                          "@ref calculation == 'md' ) } @b CASE ( @ref "
-                          "calculation == 'vc-relax' ) } @b CASE ( @ref "
-                          "calculation == 'vc-md' ) }",
+                          "@ref calculation == 'md' ) @b CASE ( @ref "
+                          "calculation == 'vc-relax' ) @b CASE ( @ref "
+                          "calculation == 'vc-md' )",
                   'input_type': 'select_multiple',
                   'options': ['bfgs',
                               'damp',
                               'fire'],
                   'type': 'CHARACTER'},
- 'ion_positions': {'default': 'default',
-                   'description': 'Ion positions',
-                   'info': '',
-                   'input_type': 'select_multiple',
-                   'options': ['default','from_input'],
-                   'type': 'CHARACTER'},
 'ion_temperature' : {
                         'default' : 'not_controlled',
                         'description' : 'Ion temperature',
@@ -49,8 +55,17 @@ IONS_DICT = {'ion_dynamics': {'description': 'Ion dynamics type',
                         'type' : 'CHARACTER'},
  'ion_velocities': {'default': 'default',
                     'description': 'Ion velocities',
+                    'info' : 'Initial ionic velocities. Available options are:'
+                                '\'default\' :\n'
+                                'start a new simulation from random thermalized\n'
+                                'distribution of velocities if tempw is set,\n'
+                                'with zero velocities otherwise; restart from\n'
+                                'atomic velocities read from the restart file\n'
+                                '\'from_input\' :\n'
+                                'start or continue the simulation with atomic'
+                                'velocities read from standard input',
                     'input_type': 'select_multiple',
-                    'options': ['from_input'],
+                    'options': ['default', 'from_input'],
                     'type': 'CHARACTER'},
  'pot_extrapolation': {'default': 'atomic',
                        'description': 'Potential extrapolation',
